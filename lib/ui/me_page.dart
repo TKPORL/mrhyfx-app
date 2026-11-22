@@ -179,9 +179,9 @@ class _MePageState extends State<MePage> {
                         ? const LinearGradient(colors: [Color(0xFFFF9F0A), Color(0xFFFF375F)])
                         : null,
                     image: DecorationImage(
-                      image: _avatar == null
+                      image: (_avatar == null
                           ? const AssetImage('assets/avatar.webp')
-                          : FileImage(File(_avatar!)),
+                          : FileImage(File(_avatar!))) as ImageProvider<Object>,
                       fit: BoxFit.cover,
                     ),
                   ),
