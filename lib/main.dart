@@ -1,42 +1,72 @@
 import 'package:flutter/material.dart';
-import 'ui/home_shell.dart';
 import 'services/dim.dart';
+import 'services/theme_ctrl.dart';
+import 'ui/home_shell.dart';
+import 'ui/theme.dart';
 
-void main() => runApp(const TsinhoApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await ThemeCtrl.load();
+  runApp(const TsinhoApp());
+}
 
 class TsinhoApp extends StatelessWidget {
   const TsinhoApp({super.key});
 
+  ThemeData _theme(Brightness b) {
+    final isLight = b == Brightness.light;
+    final base = ThemeData(
+      useMaterial3: true,
+      brightness: b,
+      scaffoldBackgroundColor: isLight ? const Color(0xFFF5F5F7) : const Color(0xFF0B0B0C),
+    );
+    return base.copyWith(
+      colorScheme: base.colorScheme.copyWith(
+        primary: const Color(0xFFFF9F0A),
+        surface: isLight ? Colors.white : const Color(0xFF1C1C1E),
+      ),
+      appBarTheme: AppBarTheme(
+        backgroundColor: isLight ? const Color(0xFFF5F5F7) : const Color(0xFF0B0B0C),
+        foregroundColor: isLight ? const Color(0xFF111114) : const Color(0xFFF5F5F7),
+        elevation: 0,
+      ),
+      textTheme: base.textTheme.apply(
+        bodyColor: isLight ? const Color(0xFF111114) : const Color(0xFFF5F5F7),
+        displayColor: isLight ? const Color(0xFF111114) : const Color(0xFFF5F5F7),
+      ),
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: isLight ? Colors.white : const Color(0xFF1C1C1E),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    const bg = Color(0xFF0B0B0C);
-    final base = ThemeData.dark(useMaterial3: true);
-    return MaterialApp(
-      title: 'Tsinho 游戏库',
-      debugShowCheckedModeBanner: false,
-      theme: base.copyWith(
-        scaffoldBackgroundColor: bg,
-        colorScheme: base.colorScheme.copyWith(
-          primary: const Color(0xFFFF9F0A),
-          surface: const Color(0xFF1C1C1E),
-        ),
-        textTheme: base.textTheme.apply(
-          bodyColor: const Color(0xFFF5F5F7),
-          displayColor: const Color(0xFFF5F5F7),
-        ),
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: ThemeCtrl.mode,
+      builder: (c, m, _) => MaterialApp(
+        title: 'Tsinho 黄油站',
+        debugShowCheckedModeBanner: false,
+        theme: _theme(Brightness.light),
+        darkTheme: _theme(Brightness.dark),
+        themeMode: m,
+        builder: (ctx, child) {
+          T.light = Theme.of(ctx).brightness == Brightness.light;
+          return ValueListenableBuilder<double>(
+            valueListenable: Dim.value,
+            builder: (c2, v, w) => Stack(
+              children: [
+                if (w != null) w,
+                if (v > 0.001)
+                  Positioned.fill(
+                      child: IgnorePointer(child: ColoredBox(color: Colors.black.withOpacity(v)))),
+              ],
+            ),
+            child: child,
+          );
+        },
+        home: const HomeShell(),
       ),
-      builder: (ctx, child) => ValueListenableBuilder<double>(
-        valueListenable: Dim.value,
-        builder: (c, v, w) => Stack(
-          children: [
-            if (w != null) w,
-            if (v > 0.001)
-              Positioned.fill(child: IgnorePointer(child: ColoredBox(color: Colors.black.withOpacity(v)))),
-          ],
-        ),
-        child: child,
-      ),
-      home: const HomeShell(),
     );
   }
 }

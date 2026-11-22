@@ -5,7 +5,7 @@ import 'me_page.dart';
 import 'theme.dart';
 
 class HomeShell extends StatefulWidget {
-  const HomeShell({super.key});
+  HomeShell({super.key});
   @override
   State<HomeShell> createState() => _HomeShellState();
 }
@@ -30,7 +30,7 @@ class _HomeShellState extends State<HomeShell> {
     final pages = [
       LibraryPage(favs: _favs, onFavChanged: reloadFavs),
       LibraryPage(favs: _favs, onFavChanged: reloadFavs, onlyFav: true),
-      const MePage(),
+      MePage(),
     ];
     return Scaffold(
       backgroundColor: T.bg,
@@ -44,9 +44,9 @@ class _HomeShellState extends State<HomeShell> {
 class _PillNav extends StatelessWidget {
   final int index;
   final ValueChanged<int> onTap;
-  const _PillNav({required this.index, required this.onTap});
+  _PillNav({required this.index, required this.onTap});
 
-  static const _items = [
+  static final _items = [
     (Icons.grid_view_rounded, '游戏库'),
     (Icons.favorite_rounded, '收藏'),
     (Icons.person_rounded, '我的'),
@@ -55,25 +55,25 @@ class _PillNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final w = MediaQuery.of(context).size.width;
-    const itemW = 78.0;
+    itemW = 78.0;
     return SafeArea(
       top: false,
       child: Padding(
-        padding: const EdgeInsets.only(bottom: 14),
+        padding: EdgeInsets.only(bottom: 14),
         child: Center(
           heightFactor: 1,
           child: Container(
-            padding: const EdgeInsets.all(5),
+            padding: EdgeInsets.all(5),
             decoration: BoxDecoration(
-              color: const Color(0xFF161618).withOpacity(0.94),
+              color: T.glass.withOpacity(0.94),
               borderRadius: BorderRadius.circular(27),
-              border: Border.all(color: Colors.white10, width: 0.5),
-              boxShadow: const [BoxShadow(color: Color(0x99000000), blurRadius: 26, offset: Offset(0, 10))],
+              border: Border.all(color: T.line, width: 0.5),
+              boxShadow: [BoxShadow(color: Color(0x99000000), blurRadius: 26, offset: Offset(0, 10))],
             ),
             child: Stack(
               children: [
                 AnimatedPositioned(
-                  duration: const Duration(milliseconds: 320),
+                  duration: Duration(milliseconds: 320),
                   curve: Curves.easeOutBack,
                   left: index * itemW,
                   top: 0,
@@ -81,9 +81,9 @@ class _PillNav extends StatelessWidget {
                   width: itemW,
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.10),
+                      color: T.light ? Colors.black.withOpacity(0.06) : Colors.white.withOpacity(0.10),
                       borderRadius: BorderRadius.circular(22),
-                      border: Border.all(color: Colors.white.withOpacity(0.06), width: 0.5),
+                      border: Border.all(color: T.light ? Colors.black.withOpacity(0.05) : Colors.white.withOpacity(0.06), width: 0.5),
                     ),
                   ),
                 ),
@@ -101,7 +101,7 @@ class _PillNav extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(_items[i].$1, size: 21, color: on ? T.ac : T.tx3),
-                            const SizedBox(height: 2),
+                            SizedBox(height: 2),
                             Text(_items[i].$2,
                                 style: TextStyle(fontSize: 10, color: on ? T.ac : T.tx3)),
                           ],

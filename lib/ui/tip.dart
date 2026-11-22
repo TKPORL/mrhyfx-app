@@ -13,7 +13,7 @@ class Tip {
       builder: (_) => _TipBody(msg: msg),
     );
     overlay.insert(_entry!);
-    Future.delayed(const Duration(milliseconds: 1800), () {
+    Future.delayed(Duration(milliseconds: 1800), () {
       _entry?.remove();
       _entry = null;
     });
@@ -22,14 +22,14 @@ class Tip {
 
 class _TipBody extends StatefulWidget {
   final String msg;
-  const _TipBody({required this.msg});
+  _TipBody({required this.msg});
   @override
   State<_TipBody> createState() => _TipBodyState();
 }
 
 class _TipBodyState extends State<_TipBody> with SingleTickerProviderStateMixin {
   late final AnimationController _c = AnimationController(
-      vsync: this, duration: const Duration(milliseconds: 180))..forward();
+      vsync: this, duration: Duration(milliseconds: 180))..forward();
 
   @override
   void dispose() {
@@ -51,16 +51,16 @@ class _TipBodyState extends State<_TipBody> with SingleTickerProviderStateMixin 
             child: Material(
               color: Colors.transparent,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 11),
                 decoration: BoxDecoration(
-                  color: const Color(0xF21C1C1E),
+                  color: T.glass,
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(color: T.line, width: 0.5),
-                  boxShadow: const [BoxShadow(color: Color(0x66000000), blurRadius: 18, offset: Offset(0, 8))],
+                  boxShadow: [BoxShadow(color: Color(0x66000000), blurRadius: 18, offset: Offset(0, 8))],
                 ),
                 child: Text(widget.msg,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 13.5, color: T.tx, height: 1.4)),
+                    style: TextStyle(fontSize: 13.5, color: T.tx, height: 1.4)),
               ),
             ),
           ),

@@ -9,7 +9,7 @@ class LibraryPage extends StatefulWidget {
   final Set<int> favs;
   final Future<void> Function() onFavChanged;
   final bool onlyFav;
-  const LibraryPage({super.key, required this.favs, required this.onFavChanged, this.onlyFav = false});
+  LibraryPage({super.key, required this.favs, required this.onFavChanged, this.onlyFav = false});
 
   @override
   State<LibraryPage> createState() => _LibraryPageState();
@@ -91,16 +91,16 @@ class _LibraryPageState extends State<LibraryPage> {
                 slivers: [
                   SliverToBoxAdapter(child: _header()),
                   if (_loading)
-                    const SliverFillRemaining(
+                    SliverFillRemaining(
                         hasScrollBody: false,
                         child: Center(child: CircularProgressIndicator(color: T.ac)))
                   else if (list.isEmpty)
                     SliverFillRemaining(hasScrollBody: false, child: _empty())
                   else
                     SliverPadding(
-                      padding: const EdgeInsets.fromLTRB(16, 4, 16, 130),
+                      padding: EdgeInsets.fromLTRB(16, 4, 16, 130),
                       sliver: SliverGrid(
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
                           mainAxisSpacing: 13,
                           crossAxisSpacing: 10,
@@ -121,11 +121,11 @@ class _LibraryPageState extends State<LibraryPage> {
               child: IgnorePointer(
                 ignoring: !_showTop,
                 child: AnimatedSlide(
-                  offset: _showTop ? Offset.zero : const Offset(0, 0.6),
-                  duration: const Duration(milliseconds: 220),
+                  offset: _showTop ? Offset.zero : Offset(0, 0.6),
+                  duration: Duration(milliseconds: 220),
                   child: AnimatedOpacity(
                     opacity: _showTop ? 1 : 0,
-                    duration: const Duration(milliseconds: 200),
+                    duration: Duration(milliseconds: 200),
                     child: _topBtn(),
                   ),
                 ),
@@ -139,32 +139,32 @@ class _LibraryPageState extends State<LibraryPage> {
 
   Widget _topBtn() => GestureDetector(
         onTap: () => _scroll.animateTo(0,
-            duration: const Duration(milliseconds: 420), curve: Curves.easeOutCubic),
+            duration: Duration(milliseconds: 420), curve: Curves.easeOutCubic),
         child: Container(
           width: 42,
           height: 42,
           decoration: BoxDecoration(
-            color: const Color(0xF21C1C1E),
+            color: T.glass,
             shape: BoxShape.circle,
             border: Border.all(color: T.line, width: 0.5),
-            boxShadow: const [BoxShadow(color: Color(0x66000000), blurRadius: 16, offset: Offset(0, 6))],
+            boxShadow: [BoxShadow(color: Color(0x66000000), blurRadius: 16, offset: Offset(0, 6))],
           ),
-          child: const Icon(Icons.keyboard_arrow_up_rounded, size: 22, color: T.tx),
+          child: Icon(Icons.keyboard_arrow_up_rounded, size: 22, color: T.tx),
         ),
       );
 
   Widget _header() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
+      padding: EdgeInsets.fromLTRB(16, 8, 16, 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(widget.onlyFav ? '我的收藏' : 'Tsinho 黄油站',
-              style: const TextStyle(fontSize: 27, fontWeight: FontWeight.w700, letterSpacing: -0.5)),
-          const SizedBox(height: 4),
+              style: TextStyle(fontSize: 27, fontWeight: FontWeight.w700, letterSpacing: -0.5)),
+          SizedBox(height: 4),
           Text('${_all.length} 款在架 · 每日更新',
-              style: const TextStyle(fontSize: 12.5, color: T.tx3)),
-          const SizedBox(height: 10),
+              style: TextStyle(fontSize: 12.5, color: T.tx3)),
+          SizedBox(height: 10),
           Row(
             children: [
               Expanded(
@@ -173,14 +173,14 @@ class _LibraryPageState extends State<LibraryPage> {
                   decoration: BoxDecoration(color: T.card, borderRadius: BorderRadius.circular(10)),
                   child: Row(
                     children: [
-                      const SizedBox(width: 10),
-                      const Icon(Icons.search, size: 17, color: T.tx3),
-                      const SizedBox(width: 7),
+                      SizedBox(width: 10),
+                      Icon(Icons.search, size: 17, color: T.tx3),
+                      SizedBox(width: 7),
                       Expanded(
                         child: TextField(
                           onChanged: (v) => setState(() => _kw = v.trim()),
-                          style: const TextStyle(fontSize: 14),
-                          decoration: const InputDecoration(
+                          style: TextStyle(fontSize: 14),
+                          decoration: InputDecoration(
                             isDense: true,
                             border: InputBorder.none,
                             hintText: '搜索游戏名',
@@ -192,7 +192,7 @@ class _LibraryPageState extends State<LibraryPage> {
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               GestureDetector(
                 onTap: _pickTag,
                 child: Container(
@@ -219,18 +219,18 @@ class _LibraryPageState extends State<LibraryPage> {
     final picked = await showModalBottomSheet<String>(
       context: context,
       backgroundColor: T.card,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (c) => SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
+          padding: EdgeInsets.fromLTRB(18, 16, 18, 18),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('按类型筛选', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
-              const SizedBox(height: 14),
+              Text('按类型筛选', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
+              SizedBox(height: 14),
               ConstrainedBox(
-                constraints: const BoxConstraints(maxHeight: 380),
+                constraints: BoxConstraints(maxHeight: 380),
                 child: SingleChildScrollView(
                   child: Wrap(
                     spacing: 8,
@@ -240,7 +240,7 @@ class _LibraryPageState extends State<LibraryPage> {
                       return GestureDetector(
                         onTap: () => Navigator.pop(c, t),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
+                          padding: EdgeInsets.symmetric(horizontal: 13, vertical: 8),
                           decoration: BoxDecoration(
                             color: on ? T.ac : T.card2,
                             borderRadius: BorderRadius.circular(18),
@@ -275,11 +275,11 @@ class _LibraryPageState extends State<LibraryPage> {
             CachedNetworkImage(
               imageUrl: g.cover,
               fit: BoxFit.cover,
-              fadeInDuration: const Duration(milliseconds: 260),
-              placeholder: (c, u) => const ShimmerBox(),
-              errorWidget: (c, u, e) => const ColoredBox(color: T.card2),
+              fadeInDuration: Duration(milliseconds: 260),
+              placeholder: (c, u) => ShimmerBox(),
+              errorWidget: (c, u, e) => ColoredBox(color: T.card2),
             ),
-            const DecoratedBox(
+            DecoratedBox(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
@@ -299,13 +299,13 @@ class _LibraryPageState extends State<LibraryPage> {
                   Text(g.title,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 13, fontWeight: FontWeight.w600, height: 1.3, color: Colors.white)),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   Text(g.platform,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 10.5, color: Color(0xB3FFFFFF))),
+                      style: TextStyle(fontSize: 10.5, color: Color(0xB3FFFFFF))),
                 ],
               ),
             ),
@@ -320,13 +320,13 @@ class _LibraryPageState extends State<LibraryPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.inbox_rounded, size: 42, color: T.tx3),
-          const SizedBox(height: 12),
+          Icon(Icons.inbox_rounded, size: 42, color: T.tx3),
+          SizedBox(height: 12),
           Text(widget.onlyFav ? '还没有收藏' : '暂时没有数据',
-              style: const TextStyle(fontSize: 15, color: T.tx2)),
-          const SizedBox(height: 6),
+              style: TextStyle(fontSize: 15, color: T.tx2)),
+          SizedBox(height: 6),
           Text(widget.onlyFav ? '在详情页点右上角的心形' : '下拉刷新试试',
-              style: const TextStyle(fontSize: 12.5, color: T.tx3)),
+              style: TextStyle(fontSize: 12.5, color: T.tx3)),
         ],
       ),
     );
@@ -335,14 +335,14 @@ class _LibraryPageState extends State<LibraryPage> {
 
 /// 图片加载中的微光占位
 class ShimmerBox extends StatefulWidget {
-  const ShimmerBox({super.key});
+  ShimmerBox({super.key});
   @override
   State<ShimmerBox> createState() => _ShimmerBoxState();
 }
 
 class _ShimmerBoxState extends State<ShimmerBox> with SingleTickerProviderStateMixin {
   late final AnimationController _c =
-      AnimationController(vsync: this, duration: const Duration(milliseconds: 1200))..repeat();
+      AnimationController(vsync: this, duration: Duration(milliseconds: 1200))..repeat();
 
   @override
   void dispose() {
@@ -360,7 +360,7 @@ class _ShimmerBoxState extends State<ShimmerBox> with SingleTickerProviderStateM
           gradient: LinearGradient(
             begin: Alignment(-1.4 + _c.value * 2.8, 0),
             end: Alignment(-0.4 + _c.value * 2.8, 0),
-            colors: const [Color(0xFF232326), Color(0xFF303034), Color(0xFF232326)],
+            colors: [Color(0xFF232326), Color(0xFF303034), Color(0xFF232326)],
           ),
         ),
       ),

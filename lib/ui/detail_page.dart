@@ -10,7 +10,7 @@ import 'tip.dart';
 
 class DetailPage extends StatefulWidget {
   final Game game;
-  const DetailPage({super.key, required this.game});
+  DetailPage({super.key, required this.game});
   @override
   State<DetailPage> createState() => _DetailPageState();
 }
@@ -85,7 +85,7 @@ class _DetailPageState extends State<DetailPage> {
         body: Stack(
           children: [
             ListView(
-              padding: const EdgeInsets.only(bottom: 120),
+              padding: EdgeInsets.only(bottom: 120),
               children: [
                 // 完整显示整张图：宽度铺满、按原比例纵向延展，不裁切
                 ColoredBox(
@@ -94,12 +94,12 @@ class _DetailPageState extends State<DetailPage> {
                     imageUrl: g.cover,
                     width: double.infinity,
                     fit: BoxFit.fitWidth,
-                    fadeInDuration: const Duration(milliseconds: 240),
-                    errorWidget: (c, u, e) => const SizedBox(height: 220),
+                    fadeInDuration: Duration(milliseconds: 240),
+                    errorWidget: (c, u, e) => SizedBox(height: 220),
                   ),
                 ),
                 Container(
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
@@ -107,13 +107,13 @@ class _DetailPageState extends State<DetailPage> {
                     ),
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(18, 4, 18, 0),
+                    padding: EdgeInsets.fromLTRB(18, 4, 18, 0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(g.title,
-                            style: const TextStyle(fontSize: 23, fontWeight: FontWeight.w700, height: 1.22)),
-                        const SizedBox(height: 10),
+                            style: TextStyle(fontSize: 23, fontWeight: FontWeight.w700, height: 1.22)),
+                        SizedBox(height: 10),
                         Wrap(
                           spacing: 6,
                           runSpacing: 6,
@@ -122,7 +122,7 @@ class _DetailPageState extends State<DetailPage> {
                             ...g.tags.where((t) => t != g.platform).take(4).map((t) => _tag(t)),
                           ],
                         ),
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16),
                         Row(
                           children: [
                             if (g.sizeDisplay != '—') _fact(g.sizeDisplay, '体积'),
@@ -130,26 +130,26 @@ class _DetailPageState extends State<DetailPage> {
                             if (g.typeDisplay != '—') _fact(g.typeDisplay, '类型'),
                           ],
                         ),
-                        const SizedBox(height: 18),
+                        SizedBox(height: 18),
                         if (g.intro.isNotEmpty) ...[
-                          const Text('说明', style: TextStyle(fontSize: 13, color: T.tx3)),
-                          const SizedBox(height: 8),
-                          Text(g.intro, style: const TextStyle(fontSize: 14, height: 1.7, color: T.tx2)),
+                          Text('说明', style: TextStyle(fontSize: 13, color: T.tx3)),
+                          SizedBox(height: 8),
+                          Text(g.intro, style: TextStyle(fontSize: 14, height: 1.7, color: T.tx2)),
                         ],
                         if (_codeShown != null) ...[
-                          const SizedBox(height: 16),
+                          SizedBox(height: 16),
                           _codeBox(_codeShown!),
                         ],
-                        const SizedBox(height: 22),
+                        SizedBox(height: 22),
                         if (related.isNotEmpty) ...[
-                          const Text('相关游戏', style: TextStyle(fontSize: 13, color: T.tx3)),
-                          const SizedBox(height: 10),
+                          Text('相关游戏', style: TextStyle(fontSize: 13, color: T.tx3)),
+                          SizedBox(height: 10),
                           SizedBox(
                             height: 132,
                             child: ListView.separated(
                               scrollDirection: Axis.horizontal,
                               itemCount: related.length,
-                              separatorBuilder: (c, i) => const SizedBox(width: 10),
+                              separatorBuilder: (c, i) => SizedBox(width: 10),
                               itemBuilder: (c, i) {
                                 final r = related[i];
                                 return GestureDetector(
@@ -167,15 +167,15 @@ class _DetailPageState extends State<DetailPage> {
                                             width: 92,
                                             height: 92,
                                             fit: BoxFit.cover,
-                                            errorWidget: (a, b, c2) => const SizedBox(
+                                            errorWidget: (a, b, c2) => SizedBox(
                                                 width: 92, height: 92, child: ColoredBox(color: T.card2)),
                                           ),
                                         ),
-                                        const SizedBox(height: 6),
+                                        SizedBox(height: 6),
                                         Text(r.title,
                                             maxLines: 2,
                                             overflow: TextOverflow.ellipsis,
-                                            style: const TextStyle(fontSize: 11, height: 1.25, color: T.tx2)),
+                                            style: TextStyle(fontSize: 11, height: 1.25, color: T.tx2)),
                                       ],
                                     ),
                                   ),
@@ -184,9 +184,9 @@ class _DetailPageState extends State<DetailPage> {
                             ),
                           ),
                         ],
-                        const SizedBox(height: 18),
+                        SizedBox(height: 18),
                         _support(),
-                        const SizedBox(height: 10),
+                        SizedBox(height: 10),
                       ],
                     ),
                   ),
@@ -202,7 +202,7 @@ class _DetailPageState extends State<DetailPage> {
                 children: [
                   _circle(Icons.arrow_back_ios_new, () => Navigator.pop(context)),
                   _circle(_fav ? Icons.favorite : Icons.favorite_border, _toggleFav,
-                      color: _fav ? const Color(0xFFFF375F) : T.tx),
+                      color: _fav ? Color(0xFFFF375F) : T.tx),
                 ],
               ),
             ),
@@ -212,8 +212,8 @@ class _DetailPageState extends State<DetailPage> {
               bottom: 0,
               child: Container(
                 padding: EdgeInsets.fromLTRB(16, 10, 16, MediaQuery.of(context).padding.bottom + 10),
-                decoration: const BoxDecoration(
-                  color: Color(0xF2161618),
+                decoration: BoxDecoration(
+                  color: T.sheet,
                   border: Border(top: BorderSide(color: T.line, width: 0.5)),
                 ),
                 child: Row(
@@ -225,15 +225,15 @@ class _DetailPageState extends State<DetailPage> {
                           onPressed: _copyCode,
                           style: OutlinedButton.styleFrom(
                             foregroundColor: T.tx,
-                            side: const BorderSide(color: T.line),
+                            side: BorderSide(color: T.line),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
                           ),
-                          child: const Text('解压码',
+                          child: Text('解压码',
                               style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    SizedBox(width: 10),
                     Expanded(
                       flex: 2,
                       child: SizedBox(
@@ -245,7 +245,7 @@ class _DetailPageState extends State<DetailPage> {
                             foregroundColor: Colors.black,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
                           ),
-                          child: const Text('获取下载',
+                          child: Text('获取下载',
                               style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
                         ),
                       ),
@@ -262,7 +262,7 @@ class _DetailPageState extends State<DetailPage> {
 
   Widget _codeBox(String code) => Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(14),
+        padding: EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: T.card,
           borderRadius: BorderRadius.circular(12),
@@ -270,10 +270,10 @@ class _DetailPageState extends State<DetailPage> {
         ),
         child: Row(
           children: [
-            const Text('解压码 ', style: TextStyle(fontSize: 12, color: T.tx3)),
+            Text('解压码 ', style: TextStyle(fontSize: 12, color: T.tx3)),
             Expanded(
               child: SelectableText(code,
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: T.ac)),
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: T.ac)),
             ),
           ],
         ),
@@ -283,13 +283,13 @@ class _DetailPageState extends State<DetailPage> {
         onTap: () => _open('https://tkporl.github.io/mrhyfx/sponsor.html'),
         child: Container(
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 13),
           decoration: BoxDecoration(
             color: T.ac.withOpacity(0.08),
             borderRadius: BorderRadius.circular(14),
             border: Border.all(color: T.ac.withOpacity(0.18), width: 0.5),
           ),
-          child: const Row(
+          child: Row(
             children: [
               Icon(Icons.local_cafe_outlined, size: 16, color: T.ac),
               SizedBox(width: 9),
@@ -304,7 +304,7 @@ class _DetailPageState extends State<DetailPage> {
       );
 
   Widget _tag(String t, {bool hot = false}) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+        padding: EdgeInsets.symmetric(horizontal: 9, vertical: 4),
         decoration: BoxDecoration(
           color: hot ? T.ac.withOpacity(0.14) : T.card2,
           borderRadius: BorderRadius.circular(7),
@@ -319,9 +319,9 @@ class _DetailPageState extends State<DetailPage> {
             Text(v.isEmpty ? '—' : v,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-            const SizedBox(height: 3),
-            Text(label, style: const TextStyle(fontSize: 11, color: T.tx3)),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+            SizedBox(height: 3),
+            Text(label, style: TextStyle(fontSize: 11, color: T.tx3)),
           ],
         ),
       );

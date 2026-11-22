@@ -7,24 +7,26 @@ import '../services/cache.dart';
 import '../services/dim.dart';
 import '../services/games_repo.dart';
 import '../services/store.dart';
+import '../services/theme_ctrl.dart';
 import 'about_page.dart';
 import 'detail_page.dart';
 import 'theme.dart';
 import 'tip.dart';
 
 class MePage extends StatefulWidget {
-  const MePage({super.key});
+  MePage({super.key});
   @override
   State<MePage> createState() => _MePageState();
 }
 
 class _MePageState extends State<MePage> {
-  static const _name = 'Tsinho 黄油站';
+  static final _name = 'Tsinho 黄油站';
   int _favCount = 0;
   int _recentCount = 0;
   Map<String, dynamic>? _links;
   int _annCount = 0;
   String _ver = '1.0.0';
+  String _modeLabel = '深色';
 
   @override
   void initState() {
@@ -38,6 +40,7 @@ class _MePageState extends State<MePage> {
     final links = await Api.json(Api.appRepo, 'app-links.json');
     final ann = await Api.json(Api.appRepo, 'announcements.json');
     final ver = await Api.json(Api.appRepo, 'version.json');
+    _syncModeLabel();
     if (!mounted) return;
     setState(() {
       _favCount = favs.length;
@@ -55,67 +58,69 @@ class _MePageState extends State<MePage> {
 
   @override
   Widget build(BuildContext context) {
-    final groups = (_links?['groups'] as List?) ?? const [];
-    final contacts = (_links?['contacts'] as List?) ?? const [];
+    final groups = (_links?['groups'] as List?) ?? [];
+    final contacts = (_links?['contacts'] as List?) ?? [];
     return Scaffold(
       backgroundColor: T.bg,
       body: SafeArea(
         bottom: false,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 26, 16, 120),
+          padding: EdgeInsets.fromLTRB(16, 26, 16, 120),
           children: [
             Center(
               child: Container(
                 width: 84,
                 height: 84,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   image: DecorationImage(image: AssetImage('assets/avatar.webp'), fit: BoxFit.cover),
                   boxShadow: [BoxShadow(color: Color(0x44000000), blurRadius: 18, offset: Offset(0, 8))],
                 ),
               ),
             ),
-            const SizedBox(height: 12),
-            const Center(
+            SizedBox(height: 12),
+            Center(
               child: Text(_name,
                   style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700)),
             ),
-            const SizedBox(height: 5),
+            SizedBox(height: 5),
             Center(
               child: Text('已收藏 $_favCount 款 · 看过 $_recentCount 款',
-                  style: const TextStyle(fontSize: 12.5, color: T.tx3)),
+                  style: TextStyle(fontSize: 12.5, color: T.tx3)),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             _group([
-              _row(Icons.notifications_none, const Color(0xFFFF9F0A), '公告',
+              _row(Icons.notifications_none, Color(0xFFFF9F0A), '公告',
                   value: _annCount > 0 ? '$_annCount 条' : '暂无', onTap: _showAnn),
-              _row(Icons.history, const Color(0xFF5E5CE6), '最近浏览',
+              _row(Icons.history, Color(0xFF5E5CE6), '最近浏览',
                   value: _recentCount > 0 ? '$_recentCount 款' : '暂无', onTap: _showRecent),
             ]),
-            const SizedBox(height: 14),
+            SizedBox(height: 14),
             _group([
+              _row(Icons.brightness_4_outlined, const Color(0xFF5E5CE6), '外观',
+                  value: _modeLabel, onTap: _pickTheme),
               _brightnessRow(),
             ]),
             if (groups.isNotEmpty || contacts.isNotEmpty) ...[
-              const SizedBox(height: 14),
+              SizedBox(height: 14),
               _group([
                 for (final g in groups)
-                  _row(Icons.groups_outlined, const Color(0xFF0A84FF), (g['name'] ?? '').toString(),
+                  _row(Icons.groups_outlined, Color(0xFF0A84FF), (g['name'] ?? '').toString(),
                       value: (g['qq'] ?? '').toString(), onTap: () => _open(g['url']?.toString())),
                 for (final c in contacts)
-                  _row(Icons.chat_bubble_outline, const Color(0xFF0A84FF), (c['name'] ?? '').toString(),
+                  _row(Icons.chat_bubble_outline, Color(0xFF0A84FF), (c['name'] ?? '').toString(),
                       onTap: () => _open(c['url']?.toString())),
               ]),
             ],
-            const SizedBox(height: 14),
+            SizedBox(height: 14),
             _group([
-              _row(Icons.cleaning_services_outlined, const Color(0xFFFF375F), '清除缓存',
+              _row(Icons.cleaning_services_outlined, Color(0xFFFF375F), '清除缓存',
                   onTap: _clearCache),
-              _row(Icons.info_outline, const Color(0xFF8E8E93), '关于', value: 'v$_ver',
+              _row(Icons.info_outline, Color(0xFF8E8E93), '关于', value: 'v$_ver',
                   onTap: () => Navigator.of(context)
-                      .push(MaterialPageRoute(builder: (_) => const AboutPage()))),
+                      .push(MaterialPageRoute(builder: (_) => AboutPage()))),
             ]),
-            const SizedBox(height: 22),
+            SizedBox(height: 22),
             GestureDetector(
               onTap: () => _open('https://tkporl.github.io/mrhyfx/'),
               child: Container(
@@ -125,7 +130,7 @@ class _MePageState extends State<MePage> {
                   borderRadius: BorderRadius.circular(13),
                   border: Border.all(color: T.line, width: 0.5),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(Icons.public, size: 16, color: T.tx2),
@@ -141,9 +146,54 @@ class _MePageState extends State<MePage> {
     );
   }
 
+  void _syncModeLabel() {
+    final m = ThemeCtrl.mode.value;
+    _modeLabel = m == ThemeMode.light ? '浅色' : m == ThemeMode.system ? '跟随系统' : '深色';
+  }
+
+  Future<void> _pickTheme() async {
+    final picked = await showModalBottomSheet<ThemeMode>(
+      context: context,
+      backgroundColor: T.card,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (c) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Padding(
+              padding: EdgeInsets.fromLTRB(18, 16, 18, 8),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text('外观', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
+              ),
+            ),
+            for (final e in [
+              (ThemeMode.dark, '深色', '全黑背景，夜里看舒服'),
+              (ThemeMode.light, '浅色', '白底深字，白天更清楚'),
+              (ThemeMode.system, '跟随系统', '跟手机设置走'),
+            ])
+              ListTile(
+                title: Text(e.$2, style: const TextStyle(fontSize: 15)),
+                subtitle: Text(e.$3, style: TextStyle(fontSize: 12, color: T.tx3)),
+                trailing: ThemeCtrl.mode.value == e.$1
+                    ? const Icon(Icons.check, size: 18, color: T.ac)
+                    : null,
+                onTap: () => Navigator.pop(c, e.$1),
+              ),
+            const SizedBox(height: 10),
+          ],
+        ),
+      ),
+    );
+    if (picked != null) {
+      await ThemeCtrl.set(picked);
+      if (mounted) setState(_syncModeLabel);
+    }
+  }
+
   Widget _brightnessRow() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(14, 10, 14, 8),
+      padding: EdgeInsets.fromLTRB(14, 10, 14, 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -153,20 +203,21 @@ class _MePageState extends State<MePage> {
                 width: 27,
                 height: 27,
                 decoration: BoxDecoration(
-                    color: const Color(0xFF30D158), borderRadius: BorderRadius.circular(8)),
-                child: const Icon(Icons.brightness_6, size: 15, color: Colors.white),
+                    color: Color(0xFF30D158), borderRadius: BorderRadius.circular(8)),
+                child: Icon(Icons.brightness_6, size: 15, color: Colors.white),
               ),
-              const SizedBox(width: 11),
-              const Expanded(child: Text('屏幕亮度', style: TextStyle(fontSize: 14))),
+              SizedBox(width: 11),
+              Expanded(child: Text('屏幕亮度', style: TextStyle(fontSize: 14))),
               Text('拖动调节', style: TextStyle(fontSize: 12, color: T.tx3)),
             ],
           ),
+          const SizedBox(height: 6),
           ValueListenableBuilder<double>(
             valueListenable: Dim.value,
             builder: (c, v, _) => SliderTheme(
               data: SliderTheme.of(context).copyWith(
                 trackHeight: 3,
-                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+                thumbShape: RoundSliderThumbShape(enabledThumbRadius: 8),
                 overlayShape: SliderComponentShape.noOverlay,
                 activeTrackColor: T.ac,
                 inactiveTrackColor: T.card2,
@@ -189,7 +240,7 @@ class _MePageState extends State<MePage> {
     final items = <Widget>[];
     for (var i = 0; i < children.length; i++) {
       if (i > 0) {
-        items.add(const Divider(height: 0.5, thickness: 0.5, indent: 52, color: T.line));
+        items.add(Divider(height: 0.5, thickness: 0.5, indent: 52, color: T.line));
       }
       items.add(children[i]);
     }
@@ -202,7 +253,7 @@ class _MePageState extends State<MePage> {
   Widget _row(IconData ic, Color tint, String label, {String? value, VoidCallback? onTap}) => InkWell(
         onTap: onTap ?? () => Tip.show(context, '$label 还在做，先看别的'),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 13),
           child: Row(
             children: [
               Container(
@@ -211,12 +262,12 @@ class _MePageState extends State<MePage> {
                 decoration: BoxDecoration(color: tint, borderRadius: BorderRadius.circular(8)),
                 child: Icon(ic, size: 15, color: Colors.white),
               ),
-              const SizedBox(width: 11),
-              Expanded(child: Text(label, style: const TextStyle(fontSize: 14))),
+              SizedBox(width: 11),
+              Expanded(child: Text(label, style: TextStyle(fontSize: 14))),
               if (value != null && value.isNotEmpty)
-                Text(value, style: const TextStyle(fontSize: 12.5, color: T.tx3)),
-              const SizedBox(width: 6),
-              const Icon(Icons.chevron_right, size: 16, color: T.tx3),
+                Text(value, style: TextStyle(fontSize: 12.5, color: T.tx3)),
+              SizedBox(width: 6),
+              Icon(Icons.chevron_right, size: 16, color: T.tx3),
             ],
           ),
         ),
@@ -237,32 +288,32 @@ class _MePageState extends State<MePage> {
 
   Future<void> _showAnn() async {
     final ann = await Api.json(Api.appRepo, 'announcements.json');
-    final items = (ann?['items'] as List?) ?? const [];
+    final items = (ann?['items'] as List?) ?? [];
     if (!mounted) return;
     showModalBottomSheet(
       context: context,
       backgroundColor: T.card,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (c) => SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
+          padding: EdgeInsets.fromLTRB(18, 16, 18, 18),
           child: ListView(
             shrinkWrap: true,
             children: [
-              const Text('公告', style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700)),
-              const SizedBox(height: 12),
-              if (items.isEmpty) const Text('暂无公告', style: TextStyle(color: T.tx3)),
+              Text('公告', style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700)),
+              SizedBox(height: 12),
+              if (items.isEmpty) Text('暂无公告', style: TextStyle(color: T.tx3)),
               for (final a in items)
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 14),
+                  padding: EdgeInsets.only(bottom: 14),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text((a['title'] ?? '').toString(),
-                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                      const SizedBox(height: 5),
+                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                      SizedBox(height: 5),
                       Text((a['body'] ?? '').toString(),
-                          style: const TextStyle(fontSize: 13, height: 1.6, color: T.tx2)),
+                          style: TextStyle(fontSize: 13, height: 1.6, color: T.tx2)),
                     ],
                   ),
                 ),
@@ -282,15 +333,15 @@ class _MePageState extends State<MePage> {
     showModalBottomSheet(
       context: context,
       backgroundColor: T.card,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (c) => SafeArea(
         child: ListView(
           shrinkWrap: true,
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 18),
+          padding: EdgeInsets.fromLTRB(16, 16, 16, 18),
           children: [
-            const Text('最近浏览', style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700)),
-            const SizedBox(height: 10),
-            if (list.isEmpty) const Text('还没有记录', style: TextStyle(color: T.tx3)),
+            Text('最近浏览', style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700)),
+            SizedBox(height: 10),
+            if (list.isEmpty) Text('还没有记录', style: TextStyle(color: T.tx3)),
             for (final g in list)
               ListTile(
                 contentPadding: EdgeInsets.zero,
@@ -299,10 +350,10 @@ class _MePageState extends State<MePage> {
                   child: Image.network(g.cover,
                       width: 42, height: 52, fit: BoxFit.cover,
                       errorBuilder: (a, b, c2) =>
-                          const SizedBox(width: 42, height: 52, child: ColoredBox(color: T.card2))),
+                          SizedBox(width: 42, height: 52, child: ColoredBox(color: T.card2))),
                 ),
                 title: Text(g.title, maxLines: 2, overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 13)),
+                    style: TextStyle(fontSize: 13)),
                 onTap: () {
                   Navigator.pop(c);
                   Navigator.of(context)
