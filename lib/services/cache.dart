@@ -33,7 +33,7 @@ class Cache {
   static Future<void> clear() async {
     try {
       final dir = await getApplicationSupportDirectory();
-      for (final e in await dir.list()) {
+      await for (final e in dir.list()) {
         if (e is File && e.path.endsWith('.json')) await e.delete();
       }
     } catch (_) {}
