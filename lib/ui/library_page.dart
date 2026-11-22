@@ -1,7 +1,7 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../models/game.dart';
 import '../services/games_repo.dart';
-import '../services/store.dart';
 import 'detail_page.dart';
 import 'theme.dart';
 
@@ -20,11 +20,23 @@ class _LibraryPageState extends State<LibraryPage> {
   bool _loading = true;
   String _kw = '';
   String _tag = '';
+  final _scroll = ScrollController();
+  bool _showTop = false;
 
   @override
   void initState() {
     super.initState();
+    _scroll.addListener(() {
+      final on = _scroll.offset > 700;
+      if (on != _showTop) setState(() => _showTop = on);
+    });
     _load();
+  }
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
   }
 
   Future<void> _load({bool force = false}) async {
@@ -48,12 +60,17 @@ class _LibraryPageState extends State<LibraryPage> {
     return l;
   }
 
+  /// 从全部游戏里统计真实类型，按出现次数排序（不写死）
   List<String> get _tags {
-    final s = <String>{};
+    final count = <String, int>{};
     for (final g in _all) {
-      s.addAll(g.tags);
+      for (final t in g.tags) {
+        if (t.isEmpty) continue;
+        count[t] = (count[t] ?? 0) + 1;
+      }
     }
-    return s.take(12).toList();
+    final list = count.keys.toList()..sort((a, b) => count[b]!.compareTo(count[a]!));
+    return list.take(48).toList();
   }
 
   @override
@@ -63,41 +80,78 @@ class _LibraryPageState extends State<LibraryPage> {
       backgroundColor: T.bg,
       body: SafeArea(
         bottom: false,
-        child: RefreshIndicator(
-          color: T.ac,
-          backgroundColor: T.card,
-          onRefresh: () => _load(force: true),
-          child: CustomScrollView(
-            slivers: [
-              SliverToBoxAdapter(child: _header()),
-              if (_loading)
-                const SliverFillRemaining(
-                    hasScrollBody: false,
-                    child: Center(child: CircularProgressIndicator(color: T.ac)))
-              else if (list.isEmpty)
-                SliverFillRemaining(hasScrollBody: false, child: _empty())
-              else
-                SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 110),
-                  sliver: SliverGrid(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 13,
-                      crossAxisSpacing: 10,
-                      childAspectRatio: 1 / 1.28,
+        child: Stack(
+          children: [
+            RefreshIndicator(
+              color: T.ac,
+              backgroundColor: T.card,
+              onRefresh: () => _load(force: true),
+              child: CustomScrollView(
+                controller: _scroll,
+                slivers: [
+                  SliverToBoxAdapter(child: _header()),
+                  if (_loading)
+                    const SliverFillRemaining(
+                        hasScrollBody: false,
+                        child: Center(child: CircularProgressIndicator(color: T.ac)))
+                  else if (list.isEmpty)
+                    SliverFillRemaining(hasScrollBody: false, child: _empty())
+                  else
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(16, 4, 16, 130),
+                      sliver: SliverGrid(
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 13,
+                          crossAxisSpacing: 10,
+                          childAspectRatio: 1 / 1.28,
+                        ),
+                        delegate: SliverChildBuilderDelegate(
+                          (c, i) => _card(list[i]),
+                          childCount: list.length,
+                        ),
+                      ),
                     ),
-                    delegate: SliverChildBuilderDelegate(
-                      (c, i) => _card(list[i]),
-                      childCount: list.length,
-                    ),
+                ],
+              ),
+            ),
+            Positioned(
+              right: 16,
+              bottom: 104,
+              child: IgnorePointer(
+                ignoring: !_showTop,
+                child: AnimatedSlide(
+                  offset: _showTop ? Offset.zero : const Offset(0, 0.6),
+                  duration: const Duration(milliseconds: 220),
+                  child: AnimatedOpacity(
+                    opacity: _showTop ? 1 : 0,
+                    duration: const Duration(milliseconds: 200),
+                    child: _topBtn(),
                   ),
                 ),
-            ],
-          ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
+
+  Widget _topBtn() => GestureDetector(
+        onTap: () => _scroll.animateTo(0,
+            duration: const Duration(milliseconds: 420), curve: Curves.easeOutCubic),
+        child: Container(
+          width: 42,
+          height: 42,
+          decoration: BoxDecoration(
+            color: const Color(0xF21C1C1E),
+            shape: BoxShape.circle,
+            border: Border.all(color: T.line, width: 0.5),
+            boxShadow: const [BoxShadow(color: Color(0x66000000), blurRadius: 16, offset: Offset(0, 6))],
+          ),
+          child: const Icon(Icons.keyboard_arrow_up_rounded, size: 22, color: T.tx),
+        ),
+      );
 
   Widget _header() {
     return Padding(
@@ -105,7 +159,7 @@ class _LibraryPageState extends State<LibraryPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(widget.onlyFav ? '我的收藏' : 'Tsinho 游戏库',
+          Text(widget.onlyFav ? '我的收藏' : 'Tsinho 黄油站',
               style: const TextStyle(fontSize: 27, fontWeight: FontWeight.w700, letterSpacing: -0.5)),
           const SizedBox(height: 4),
           Text('${_all.length} 款在架 · 每日更新',
@@ -147,7 +201,8 @@ class _LibraryPageState extends State<LibraryPage> {
                   decoration: BoxDecoration(
                     color: _tag.isEmpty ? T.card : T.ac.withOpacity(0.12),
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: _tag.isEmpty ? Colors.transparent : T.ac.withOpacity(0.4), width: 0.5),
+                    border: Border.all(
+                        color: _tag.isEmpty ? Colors.transparent : T.ac.withOpacity(0.4), width: 0.5),
                   ),
                   child: Icon(Icons.tune, size: 17, color: _tag.isEmpty ? T.tx2 : T.ac),
                 ),
@@ -174,24 +229,29 @@ class _LibraryPageState extends State<LibraryPage> {
             children: [
               const Text('按类型筛选', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
               const SizedBox(height: 14),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: tags.map((t) {
-                  final on = t == _tag;
-                  return GestureDetector(
-                    onTap: () => Navigator.pop(c, t),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: on ? T.ac : T.card2,
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                      child: Text(t.isEmpty ? '全部' : t,
-                          style: TextStyle(fontSize: 13, color: on ? Colors.black : T.tx2)),
-                    ),
-                  );
-                }).toList(),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 380),
+                child: SingleChildScrollView(
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: tags.map((t) {
+                      final on = t == _tag;
+                      return GestureDetector(
+                        onTap: () => Navigator.pop(c, t),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: on ? T.ac : T.card2,
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                          child: Text(t.isEmpty ? '全部' : t,
+                              style: TextStyle(fontSize: 13, color: on ? Colors.black : T.tx2)),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
               ),
             ],
           ),
@@ -212,16 +272,12 @@ class _LibraryPageState extends State<LibraryPage> {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            Container(color: T.card2),
-            Image.network(
-              g.cover,
+            CachedNetworkImage(
+              imageUrl: g.cover,
               fit: BoxFit.cover,
-              frameBuilder: (c, child, frame, sync) => AnimatedOpacity(
-                opacity: frame == null ? 0 : 1,
-                duration: const Duration(milliseconds: 260),
-                child: child,
-              ),
-              errorBuilder: (c, e, s) => const ColoredBox(color: T.card2),
+              fadeInDuration: const Duration(milliseconds: 260),
+              placeholder: (c, u) => const ShimmerBox(),
+              errorWidget: (c, u, e) => const ColoredBox(color: T.card2),
             ),
             const DecoratedBox(
               decoration: BoxDecoration(
@@ -243,9 +299,10 @@ class _LibraryPageState extends State<LibraryPage> {
                   Text(g.title,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, height: 1.3, color: Colors.white)),
+                      style: const TextStyle(
+                          fontSize: 13, fontWeight: FontWeight.w600, height: 1.3, color: Colors.white)),
                   const SizedBox(height: 4),
-                  Text('${g.platform}  ${g.size}',
+                  Text(g.platform,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(fontSize: 10.5, color: Color(0xB3FFFFFF))),
@@ -271,6 +328,41 @@ class _LibraryPageState extends State<LibraryPage> {
           Text(widget.onlyFav ? '在详情页点右上角的心形' : '下拉刷新试试',
               style: const TextStyle(fontSize: 12.5, color: T.tx3)),
         ],
+      ),
+    );
+  }
+}
+
+/// 图片加载中的微光占位
+class ShimmerBox extends StatefulWidget {
+  const ShimmerBox({super.key});
+  @override
+  State<ShimmerBox> createState() => _ShimmerBoxState();
+}
+
+class _ShimmerBoxState extends State<ShimmerBox> with SingleTickerProviderStateMixin {
+  late final AnimationController _c =
+      AnimationController(vsync: this, duration: const Duration(milliseconds: 1200))..repeat();
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _c,
+      builder: (_, __) => DecoratedBox(
+        decoration: BoxDecoration(
+          color: T.card2,
+          gradient: LinearGradient(
+            begin: Alignment(-1.4 + _c.value * 2.8, 0),
+            end: Alignment(-0.4 + _c.value * 2.8, 0),
+            colors: const [Color(0xFF232326), Color(0xFF303034), Color(0xFF232326)],
+          ),
+        ),
       ),
     );
   }

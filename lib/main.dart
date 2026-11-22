@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'ui/home_shell.dart';
+import 'services/dim.dart';
 
 void main() => runApp(const TsinhoApp());
 
@@ -23,6 +24,17 @@ class TsinhoApp extends StatelessWidget {
           bodyColor: const Color(0xFFF5F5F7),
           displayColor: const Color(0xFFF5F5F7),
         ),
+      ),
+      builder: (ctx, child) => ValueListenableBuilder<double>(
+        valueListenable: Dim.value,
+        builder: (c, v, w) => Stack(
+          children: [
+            if (w != null) w,
+            if (v > 0.001)
+              Positioned.fill(child: IgnorePointer(child: ColoredBox(color: Colors.black.withOpacity(v)))),
+          ],
+        ),
+        child: child,
       ),
       home: const HomeShell(),
     );

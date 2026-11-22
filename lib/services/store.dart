@@ -46,6 +46,12 @@ class Store {
     await p.setString('recent', jsonEncode(v));
   }
 
+  static Future<void> clearAll() async {
+    final p = await _prefs;
+    await p.remove('favs');
+    await p.remove('recent');
+  }
+
   static Future<String?> avatarPath() async => (await _prefs).getString('avatar');
   static Future<void> setAvatarPath(String v) async => (await _prefs).setString('avatar', v);
 

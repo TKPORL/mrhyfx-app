@@ -46,13 +46,15 @@ class Game {
     return m == null ? '—' : '${m.group(1)}${m.group(2)!.toUpperCase()}';
   }
 
-  /// 类型：优先第一个非平台类标签
+  /// 类型：先用标签里的第一个非平台项，抓不到再从简介里的 【SLG/欧美…】 取英文缩写
   String get typeDisplay {
     for (final t in tags) {
       if (t == platform) continue;
       if (RegExp(r'^(PC|安卓|手机|双端)').hasMatch(t)) continue;
       return t;
     }
+    final m = RegExp(r'【([A-Za-z]{2,5})\s*[/／]').firstMatch(intro);
+    if (m != null) return m.group(1)!.toUpperCase();
     return '—';
   }
 
