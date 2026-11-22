@@ -5,7 +5,7 @@ import 'me_page.dart';
 import 'theme.dart';
 
 class HomeShell extends StatefulWidget {
-  HomeShell({super.key});
+  const HomeShell({super.key});
   @override
   State<HomeShell> createState() => _HomeShellState();
 }
@@ -44,7 +44,7 @@ class _HomeShellState extends State<HomeShell> {
 class _PillNav extends StatelessWidget {
   final int index;
   final ValueChanged<int> onTap;
-  _PillNav({required this.index, required this.onTap});
+  const _PillNav({required this.index, required this.onTap});
 
   static final _items = [
     (Icons.grid_view_rounded, '游戏库'),
@@ -55,7 +55,7 @@ class _PillNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final w = MediaQuery.of(context).size.width;
-    itemW = 78.0;
+    final itemW = 78.0;
     return SafeArea(
       top: false,
       child: Padding(

@@ -326,7 +326,7 @@ class _DetailPageState extends State<DetailPage> {
         ),
       );
 
-  Widget _circle(IconData ic, VoidCallback onTap, {Color color = T.tx}) => GestureDetector(
+  Widget _circle(IconData ic, VoidCallback onTap, {Color? color}) => GestureDetector(
         onTap: onTap,
         child: Container(
           width: 36,
@@ -336,7 +336,7 @@ class _DetailPageState extends State<DetailPage> {
             shape: BoxShape.circle,
             border: Border.all(color: Colors.white12, width: 0.5),
           ),
-          child: Icon(ic, size: 16, color: color),
+          child: Icon(ic, size: 16, color: color ?? T.tx),
         ),
       );
 }
