@@ -61,7 +61,7 @@ class _LibraryPageState extends State<LibraryPage> {
   }
 
   /// 从全部游戏里统计真实类型，按出现次数排序（不写死）
-  static const _tagNoise = {
+  static final _tagNoise = {
     '简介', '更新', '存档', '电脑', '电脑版', '汉化', '中文', '日系', '官方中文版',
     '生肉', '动态', '步兵', '步兵版', '官中', '官中版', '新作', '全回想',
   };
@@ -101,14 +101,14 @@ class _LibraryPageState extends State<LibraryPage> {
               onRefresh: () => _load(force: true),
               child: CustomScrollView(
                 controller: _scroll,
-                physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                physics: AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
                 slivers: [
                   SliverToBoxAdapter(child: _header()),
                   if (_loading)
                     SliverPadding(
-                      padding: const EdgeInsets.fromLTRB(16, 4, 16, 130),
+                      padding: EdgeInsets.fromLTRB(16, 4, 16, 130),
                       sliver: SliverGrid(
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
                           mainAxisSpacing: 13,
                           crossAxisSpacing: 10,
@@ -117,7 +117,7 @@ class _LibraryPageState extends State<LibraryPage> {
                         delegate: SliverChildBuilderDelegate(
                           (c, i) => ClipRRect(
                             borderRadius: BorderRadius.circular(14),
-                            child: const ShimmerBox(),
+                            child: ShimmerBox(),
                           ),
                           childCount: 8,
                         ),
@@ -192,7 +192,7 @@ class _LibraryPageState extends State<LibraryPage> {
               style: TextStyle(fontSize: 27, fontWeight: FontWeight.w700, letterSpacing: -0.5)),
           SizedBox(height: 4),
           Text(_loading ? '正在加载全部游戏…' : '${_all.length} 款在架 · 每日更新',
-              style: const TextStyle(fontSize: 12.5, color: T.tx3)),
+              style: TextStyle(fontSize: 12.5, color: T.tx3)),
           SizedBox(height: 10),
           Row(
             children: [
@@ -348,38 +348,38 @@ class _LibraryPageState extends State<LibraryPage> {
     final err = GamesRepo.error;
     return Center(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 40),
+        padding: EdgeInsets.symmetric(horizontal: 40),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(err != null ? Icons.wifi_off_rounded : Icons.inbox_rounded,
                 size: 42, color: T.tx3),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             Text(
                 widget.onlyFav
                     ? '还没有收藏'
                     : err != null
                         ? '没连上数据'
                         : '暂时没有数据',
-                style: const TextStyle(fontSize: 15, color: T.tx2)),
-            const SizedBox(height: 6),
+                style: TextStyle(fontSize: 15, color: T.tx2)),
+            SizedBox(height: 6),
             Text(
                 widget.onlyFav
                     ? '在详情页点右上角的心形'
                     : err ?? '下拉可以刷新',
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 12.5, color: T.tx3, height: 1.6)),
+                style: TextStyle(fontSize: 12.5, color: T.tx3, height: 1.6)),
             if (!widget.onlyFav && err != null) ...[
-              const SizedBox(height: 18),
+              SizedBox(height: 18),
               GestureDetector(
                 onTap: () => _load(force: true),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 11),
+                  padding: EdgeInsets.symmetric(horizontal: 22, vertical: 11),
                   decoration: BoxDecoration(
                     color: T.ac.withOpacity(0.14),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Text('重新加载',
+                  child: Text('重新加载',
                       style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600, color: T.ac)),
                 ),
               ),
