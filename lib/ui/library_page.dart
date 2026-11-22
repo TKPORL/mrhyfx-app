@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/game.dart';
-import '../services/api.dart';
+import '../services/games_repo.dart';
 import '../services/store.dart';
 import 'detail_page.dart';
 import 'theme.dart';
@@ -29,8 +29,7 @@ class _LibraryPageState extends State<LibraryPage> {
 
   Future<void> _load({bool force = false}) async {
     setState(() => _loading = true);
-    final data = await Api.cachedRawJson(Api.repo, 'app-games.json', force: force);
-    final list = Game.listFrom(data);
+    final list = await GamesRepo.load(force: force);
     if (!mounted) return;
     setState(() {
       _all = list;
@@ -214,8 +213,16 @@ class _LibraryPageState extends State<LibraryPage> {
           fit: StackFit.expand,
           children: [
             Container(color: T.card2),
-            Image.network(g.cover, fit: BoxFit.cover,
-                errorBuilder: (c, e, s) => const ColoredBox(color: T.card2)),
+            Image.network(
+              g.cover,
+              fit: BoxFit.cover,
+              frameBuilder: (c, child, frame, sync) => AnimatedOpacity(
+                opacity: frame == null ? 0 : 1,
+                duration: const Duration(milliseconds: 260),
+                child: child,
+              ),
+              errorBuilder: (c, e, s) => const ColoredBox(color: T.card2),
+            ),
             const DecoratedBox(
               decoration: BoxDecoration(
                 gradient: LinearGradient(

@@ -34,7 +34,9 @@ class _DetailPageState extends State<DetailPage> {
       v.add(widget.game.id);
     }
     await Store.saveFavs(v);
-    if (mounted) setState(() => _fav = v.contains(widget.game.id));
+    final on = v.contains(widget.game.id);
+    if (mounted) setState(() => _fav = on);
+    _snack(on ? '已加入收藏' : '已取消收藏');
   }
 
   Future<void> _copyCode() async {
@@ -57,7 +59,13 @@ class _DetailPageState extends State<DetailPage> {
   }
 
   void _snack(String m) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(m), behavior: SnackBarBehavior.floating));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(m),
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: T.card2,
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 96),
+      duration: const Duration(seconds: 2),
+    ));
   }
 
   @override
@@ -78,9 +86,17 @@ class _DetailPageState extends State<DetailPage> {
               Stack(
                 children: [
                   AspectRatio(
-                    aspectRatio: 3 / 4,
-                    child: Image.network(g.cover, fit: BoxFit.cover,
-                        errorBuilder: (c, e, s) => const ColoredBox(color: T.card2)),
+                    aspectRatio: 16 / 13,
+                    child: Image.network(
+                      g.cover,
+                      fit: BoxFit.cover,
+                      frameBuilder: (c, child, frame, sync) => AnimatedOpacity(
+                        opacity: frame == null ? 0 : 1,
+                        duration: const Duration(milliseconds: 280),
+                        child: child,
+                      ),
+                      errorBuilder: (c, e, s) => const ColoredBox(color: T.card2),
+                    ),
                   ),
                   const Positioned.fill(
                     child: DecoratedBox(
@@ -116,9 +132,9 @@ class _DetailPageState extends State<DetailPage> {
                       const SizedBox(height: 16),
                       Row(
                         children: [
-                          _fact(g.size, '体积'),
+                          _fact(g.sizeDisplay, '体积'),
                           _fact(g.platform, '平台'),
-                          _fact(g.tags.isNotEmpty ? g.tags.first : '—', '类型'),
+                          _fact(g.typeDisplay, '类型'),
                         ],
                       ),
                       const SizedBox(height: 18),

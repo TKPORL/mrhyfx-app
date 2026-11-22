@@ -39,6 +39,23 @@ class Game {
         date: (j['date'] ?? '').toString(),
       );
 
+  /// 体积：数据里没有就从简介里再抓一次
+  String get sizeDisplay {
+    if (size.isNotEmpty) return size;
+    final m = RegExp(r'(\d+(?:\.\d+)?)\s*([GMT])B?(?![A-Za-z])', caseSensitive: false).firstMatch(intro);
+    return m == null ? '—' : '${m.group(1)}${m.group(2)!.toUpperCase()}';
+  }
+
+  /// 类型：优先第一个非平台类标签
+  String get typeDisplay {
+    for (final t in tags) {
+      if (t == platform) continue;
+      if (RegExp(r'^(PC|安卓|手机|双端)').hasMatch(t)) continue;
+      return t;
+    }
+    return '—';
+  }
+
   static List<Game> listFrom(dynamic data) {
     final items = (data is Map && data['games'] is List) ? data['games'] as List : (data is List ? data : const []);
     return items.whereType<Map>().map((e) => Game.fromJson(e.cast<String, dynamic>())).toList();

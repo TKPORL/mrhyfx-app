@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/game.dart';
 import '../services/api.dart';
+import '../services/games_repo.dart';
 import '../services/cache.dart';
 import '../services/store.dart';
 import 'detail_page.dart';
@@ -57,8 +58,13 @@ class _MePageState extends State<MePage> {
   }
 
   void _snack(String m) {
-    ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(m), behavior: SnackBarBehavior.floating, backgroundColor: T.card2));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(m),
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: T.card2,
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 96),
+      duration: const Duration(seconds: 2),
+    ));
   }
 
   Future<void> _rename() async {
@@ -172,12 +178,15 @@ class _MePageState extends State<MePage> {
                     gradient: _avatar == null
                         ? const LinearGradient(colors: [Color(0xFFFF9F0A), Color(0xFFFF375F)])
                         : null,
-                    image: _avatar == null
-                        ? null
-                        : DecorationImage(image: FileImage(File(_avatar!)), fit: BoxFit.cover),
+                    image: DecorationImage(
+                      image: _avatar == null
+                          ? const AssetImage('assets/avatar.webp')
+                          : FileImage(File(_avatar!)),
+                      fit: BoxFit.cover,
+                    ),
                   ),
                   alignment: Alignment.center,
-                  child: _avatar == null ? const Icon(Icons.pets, size: 34, color: Colors.white) : null,
+                  child: null,
                 ),
               ),
             ),
@@ -239,10 +248,19 @@ class _MePageState extends State<MePage> {
     );
   }
 
-  Widget _group(List<Widget> children) => Container(
-        decoration: BoxDecoration(color: T.card, borderRadius: BorderRadius.circular(14)),
-        child: Column(children: children),
-      );
+  Widget _group(List<Widget> children) {
+    final items = <Widget>[];
+    for (var i = 0; i < children.length; i++) {
+      if (i > 0) {
+        items.add(const Divider(height: 0.5, thickness: 0.5, indent: 52, color: T.line));
+      }
+      items.add(children[i]);
+    }
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(14),
+      child: Material(color: T.card, child: Column(children: items)),
+    );
+  }
 
   Widget _row(IconData ic, Color tint, String label, {String? value, VoidCallback? onTap}) => InkWell(
         onTap: onTap ?? () => _snack('$label：开发中'),
@@ -307,10 +325,9 @@ class _MePageState extends State<MePage> {
 
   Future<void> _showRecent() async {
     final ids = await Store.recent();
-    final data = await Api.rawJson(Api.repo, 'app-games.json');
-    final all = Game.listFrom(data);
+    final all = await GamesRepo.load();
     if (!mounted) return;
-    final list = ids.map((i) => all.where((g) => g.id == i)).expand((e) => e).toList();
+    final list = ids.map((i) => GamesRepo.byId(i)).whereType<Game>().toList();
     showModalBottomSheet(
       context: context,
       backgroundColor: T.card,

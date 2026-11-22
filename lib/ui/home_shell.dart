@@ -61,6 +61,7 @@ class _PillNav extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.only(bottom: 14),
         child: Center(
+          heightFactor: 1,
           child: Container(
             padding: const EdgeInsets.all(5),
             decoration: BoxDecoration(
