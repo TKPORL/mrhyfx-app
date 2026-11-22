@@ -32,6 +32,27 @@ jobs:
           sed -i 's/android:label="tsinho_gamebox"/android:label="Tsinho 游戏库"/' "$M"
           cat "$M"
 
+      # AGP 的 lint 在部分插件上会崩（image_picker_android:lintVitalAnalyzeRelease），
+      # 发布包不需要 lint 拦截，这里直接关掉
+      - name: 关闭 release lint
+        run: |
+          python3 - <<'PYEOF'
+          import os, re
+          for f in ('android/app/build.gradle.kts', 'android/app/build.gradle'):
+              if not os.path.exists(f):
+                  continue
+              s = open(f, encoding='utf-8').read()
+              if 'lint' in s and 'checkReleaseBuilds' in s:
+                  continue
+              if f.endswith('.kts'):
+                  s = s.replace('android {', 'android {\n    lint {\n        checkReleaseBuilds = false\n        abortOnError = false\n    }', 1)
+              else:
+                  s = s.replace('android {', 'android {\n    lintOptions {\n        checkReleaseBuilds false\n        abortOnError false\n    }', 1)
+              open(f, 'w', encoding='utf-8').write(s)
+              print('patched', f)
+          PYEOF
+          grep -n -A4 "lint" android/app/build.gradle.kts || true
+
       - run: flutter pub get
       - run: flutter build apk --release
 
