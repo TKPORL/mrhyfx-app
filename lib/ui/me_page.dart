@@ -288,38 +288,92 @@ class _MePageState extends State<MePage> {
 
   Future<void> _showAnn() async {
     final ann = await Api.json(Api.appRepo, 'announcements.json');
-    final items = (ann?['items'] as List?) ?? [];
+    final items = ((ann?['items'] as List?) ?? const [])
+        .whereType<Map>()
+        .where((a) => a['visible'] != false)
+        .toList();
     if (!mounted) return;
     showModalBottomSheet(
       context: context,
       backgroundColor: T.card,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (c) => SafeArea(
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(18, 16, 18, 18),
-          child: ListView(
-            shrinkWrap: true,
-            children: [
-              Text('公告', style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700)),
-              SizedBox(height: 12),
-              if (items.isEmpty) Text('暂无公告', style: TextStyle(color: T.tx3)),
-              for (final a in items)
-                Padding(
-                  padding: EdgeInsets.only(bottom: 14),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text((a['title'] ?? '').toString(),
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                      SizedBox(height: 5),
-                      Text((a['body'] ?? '').toString(),
-                          style: TextStyle(fontSize: 13, height: 1.6, color: T.tx2)),
-                    ],
-                  ),
-                ),
-            ],
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: MediaQuery.of(c).size.height * 0.78),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(18, 16, 18, 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('公告', style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700)),
+                const SizedBox(height: 4),
+                Text('长按正文可复制', style: TextStyle(fontSize: 11.5, color: T.tx3)),
+                const SizedBox(height: 14),
+                if (items.isEmpty) Text('暂无公告', style: TextStyle(color: T.tx3)),
+                for (final a in items) _annItem(a),
+              ],
+            ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _annItem(Map a) {
+    final title = (a['title'] ?? '').toString().trim();
+    final body = (a['body'] ?? '').toString();
+    // 标题与弹层标题重名时不重复显示（站长曾把标题也写成「公告」）
+    final showTitle = title.isNotEmpty && title != '公告' && title != '📢 公告';
+    final urls = RegExp(r'https?://[^\s\u4e00-\u9fa5]+').allMatches(body).map((m) => m.group(0)!).toSet().toList();
+    final date = (a['date'] ?? '').toString();
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.only(bottom: 14),
+      decoration: BoxDecoration(border: Border(bottom: BorderSide(color: T.line, width: 0.5))),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (showTitle) ...[
+            Text(title, style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w600, color: T.tx)),
+            const SizedBox(height: 6),
+          ],
+          if (date.isNotEmpty) ...[
+            Text(date, style: TextStyle(fontSize: 11, color: T.tx3)),
+            const SizedBox(height: 8),
+          ],
+          SelectableText(body, style: TextStyle(fontSize: 13.5, height: 1.75, color: T.tx2)),
+          if (urls.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            for (final u in urls)
+              Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: GestureDetector(
+                  onTap: () => _open(u),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: T.ac.withOpacity(0.10),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.open_in_new, size: 13, color: T.ac),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(u,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(fontSize: 12, color: T.ac)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ],
       ),
     );
   }
