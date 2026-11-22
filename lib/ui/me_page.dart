@@ -1,7 +1,12 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/game.dart';
 import '../services/api.dart';
+import '../services/cache.dart';
 import '../services/store.dart';
 import 'detail_page.dart';
 import 'theme.dart';
@@ -19,6 +24,7 @@ class _MePageState extends State<MePage> {
   Map<String, dynamic>? _links;
   int _annCount = 0;
   String? _newVersion;
+  String? _avatar;
 
   @override
   void initState() {
@@ -33,6 +39,7 @@ class _MePageState extends State<MePage> {
     final links = await Api.json(Api.appRepo, 'app-links.json');
     final ann = await Api.json(Api.appRepo, 'announcements.json');
     final ver = await Api.json(Api.appRepo, 'version.json');
+    final av = await Store.avatarPath();
     if (!mounted) return;
     setState(() {
       _name = name;
@@ -40,6 +47,7 @@ class _MePageState extends State<MePage> {
       _recentCount = recent.length;
       _links = links;
       _annCount = (ann?['items'] is List) ? (ann!['items'] as List).length : 0;
+      _avatar = av;
       final v = ver?['version']?.toString();
       if (v != null && v != '1.0.0') _newVersion = v;
     });
@@ -85,6 +93,62 @@ class _MePageState extends State<MePage> {
     await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
   }
 
+  Future<void> _pickAvatar() async {
+    try {
+      final f = await ImagePicker().pickImage(source: ImageSource.gallery, maxWidth: 480, imageQuality: 86);
+      if (f == null) return;
+      await Store.setAvatarPath(f.path);
+      if (mounted) setState(() => _avatar = f.path);
+    } catch (e) {
+      _snack('打开相册失败：$e');
+    }
+  }
+
+  Future<void> _export() async {
+    final favs = await Store.favs();
+    final recent = await Store.recent();
+    final data = {
+      'app': 'tsinho-gamebox',
+      'v': 1,
+      'at': DateTime.now().toIso8601String(),
+      'name': _name,
+      'favs': favs.toList(),
+      'recent': recent,
+    };
+    await Clipboard.setData(ClipboardData(text: jsonEncode(data)));
+    _snack('存档已复制，粘到记事本或发给自己保存');
+  }
+
+  Future<void> _import() async {
+    final clip = await Clipboard.getData(Clipboard.kTextPlain);
+    final txt = clip?.text ?? '';
+    try {
+      final d = jsonDecode(txt) as Map<String, dynamic>;
+      if (d['app'] != 'tsinho-gamebox') {
+        _snack('剪贴板里不是本应用的存档');
+        return;
+      }
+      final favs = ((d['favs'] as List?) ?? const []).map((e) => (e as num).toInt()).toSet();
+      final recent = ((d['recent'] as List?) ?? const []).map((e) => (e as num).toInt()).toList();
+      await Store.saveFavs(favs);
+      await Store.setRecent(recent);
+      if (d['name'] is String) await Store.setName(d['name'] as String);
+      setState(() {
+        _name = (d['name'] is String) ? d['name'] as String : _name;
+        _favCount = favs.length;
+        _recentCount = recent.length;
+      });
+      _snack('已恢复 ${favs.length} 个收藏');
+    } catch (e) {
+      _snack('导入失败：剪贴板内容不是有效存档');
+    }
+  }
+
+  Future<void> _clearCache() async {
+    await Cache.clear();
+    _snack('缓存已清除，下次打开会重新拉取数据');
+  }
+
   @override
   Widget build(BuildContext context) {
     final groups = (_links?['groups'] as List?) ?? const [];
@@ -98,15 +162,23 @@ class _MePageState extends State<MePage> {
           children: [
             const SizedBox(height: 16),
             Center(
-              child: Container(
-                width: 84,
-                height: 84,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: LinearGradient(colors: [Color(0xFFFF9F0A), Color(0xFFFF375F)]),
+              child: GestureDetector(
+                onTap: _pickAvatar,
+                child: Container(
+                  width: 84,
+                  height: 84,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: _avatar == null
+                        ? const LinearGradient(colors: [Color(0xFFFF9F0A), Color(0xFFFF375F)])
+                        : null,
+                    image: _avatar == null
+                        ? null
+                        : DecorationImage(image: FileImage(File(_avatar!)), fit: BoxFit.cover),
+                  ),
+                  alignment: Alignment.center,
+                  child: _avatar == null ? const Icon(Icons.pets, size: 34, color: Colors.white) : null,
                 ),
-                alignment: Alignment.center,
-                child: const Icon(Icons.pets, size: 34, color: Colors.white),
               ),
             ),
             const SizedBox(height: 12),
@@ -137,8 +209,9 @@ class _MePageState extends State<MePage> {
             ]),
             const SizedBox(height: 16),
             _group([
-              _row(Icons.download_outlined, const Color(0xFF30D158), '下载方式', value: '浏览器打开'),
-              _row(Icons.grid_view, const Color(0xFF0A84FF), '卡片尺寸', value: '标准'),
+              _row(Icons.save_alt, const Color(0xFF30D158), '导出存档', onTap: _export),
+              _row(Icons.file_download_outlined, const Color(0xFF0A84FF), '导入存档', onTap: _import),
+              _row(Icons.cleaning_services_outlined, const Color(0xFFFF375F), '清除缓存', onTap: _clearCache),
               _row(Icons.info_outline, const Color(0xFF8E8E93), '关于',
                   value: _newVersion == null ? 'v1.0.0' : 'v1.0.0 → v$_newVersion'),
             ]),

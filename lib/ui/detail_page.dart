@@ -14,6 +14,7 @@ class DetailPage extends StatefulWidget {
 
 class _DetailPageState extends State<DetailPage> {
   bool _fav = false;
+  double _sx = 999;
   String? _codeShown;
 
   @override
@@ -62,7 +63,12 @@ class _DetailPageState extends State<DetailPage> {
   @override
   Widget build(BuildContext context) {
     final g = widget.game;
-    return Scaffold(
+    return GestureDetector(
+      onHorizontalDragStart: (d) => _sx = d.globalPosition.dx,
+      onHorizontalDragEnd: (d) {
+        if (_sx < 40 && (d.primaryVelocity ?? 0) > 220) Navigator.maybePop(context);
+      },
+      child: Scaffold(
       backgroundColor: T.bg,
       body: Stack(
         children: [
@@ -209,7 +215,7 @@ class _DetailPageState extends State<DetailPage> {
           ),
         ],
       ),
-    );
+    ));
   }
 
   Widget _tag(String t, {bool hot = false}) => Container(

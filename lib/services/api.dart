@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'cache.dart';
 
 class Api {
   static const repo = 'TKPORL/mrhyfx';
@@ -18,6 +19,21 @@ class Api {
     } catch (_) {
       return null;
     }
+  }
+
+  /// 先读磁盘缓存（默认 6 小时），过期或缺失才走网络并回写
+  static Future<dynamic> cachedRawJson(String repo, String path,
+      {Duration ttl = const Duration(hours: 6), bool force = false}) async {
+    final key = '${repo.replaceAll('/', '_')}__${path.replaceAll('/', '_')}';
+    if (!force) {
+      final hit = await Cache.read(key, ttl: ttl);
+      if (hit != null) return hit;
+    }
+    final fresh = await rawJson(repo, path);
+    if (fresh != null) await Cache.write(key, fresh);
+    if (fresh != null) return fresh;
+    // 网络失败：退回任意年龄的旧缓存，总比空列表好
+    return Cache.read(key, ttl: const Duration(days: 3650));
   }
 
   static Future<dynamic> rawJson(String repo, String path) async {

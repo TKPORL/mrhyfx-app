@@ -27,9 +27,9 @@ class _LibraryPageState extends State<LibraryPage> {
     _load();
   }
 
-  Future<void> _load() async {
+  Future<void> _load({bool force = false}) async {
     setState(() => _loading = true);
-    final data = await Api.rawJson(Api.repo, 'app-games.json');
+    final data = await Api.cachedRawJson(Api.repo, 'app-games.json', force: force);
     final list = Game.listFrom(data);
     if (!mounted) return;
     setState(() {
@@ -67,7 +67,7 @@ class _LibraryPageState extends State<LibraryPage> {
         child: RefreshIndicator(
           color: T.ac,
           backgroundColor: T.card,
-          onRefresh: _load,
+          onRefresh: () => _load(force: true),
           child: CustomScrollView(
             slivers: [
               SliverToBoxAdapter(child: _header()),

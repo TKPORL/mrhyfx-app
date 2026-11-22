@@ -10,16 +10,31 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
+
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
           cache: true
+
+      # 仓库里只存 lib/ 与配置，Android 工程由 CI 现场生成（本机没有 Flutter SDK）
+      - name: 生成 Android 工程
+        run: flutter create --platforms=android --org com.tsinho --project-name tsinho_gamebox .
+
+      - name: 补清单（联网权限 + 应用名）
+        run: |
+          M=android/app/src/main/AndroidManifest.xml
+          sed -i '/<application/i\    <uses-permission android:name="android.permission.INTERNET"/>' "$M"
+          sed -i 's/android:label="tsinho_gamebox"/android:label="Tsinho 游戏库"/' "$M"
+          cat "$M"
+
       - run: flutter pub get
       - run: flutter build apk --release
+
       - uses: actions/upload-artifact@v4
         with:
           name: tsinho-gamebox-apk
