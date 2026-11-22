@@ -6,6 +6,7 @@ import '../models/game.dart';
 import '../services/games_repo.dart';
 import '../services/store.dart';
 import 'theme.dart';
+import 'support.dart';
 import 'tip.dart';
 
 class DetailPage extends StatefulWidget {
@@ -146,6 +147,30 @@ class _DetailPageState extends State<DetailPage> {
                           ],
                         ),
                         SizedBox(height: 18),
+                        if (g.shots.isNotEmpty) ...[
+                          Text('截图', style: TextStyle(fontSize: 13, color: T.tx3)),
+                          SizedBox(height: 10),
+                          SizedBox(
+                            height: 104,
+                            child: ListView.separated(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: g.shots.length,
+                              separatorBuilder: (c, i) => SizedBox(width: 8),
+                              itemBuilder: (c, i) => ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: CachedNetworkImage(
+                                  imageUrl: g.shots[i],
+                                  width: 150,
+                                  fit: BoxFit.cover,
+                                  errorWidget: (a, b, d) => SizedBox(
+                                      width: 150,
+                                      child: ColoredBox(color: T.card2)),
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 18),
+                        ],
                         if (g.intro.isNotEmpty) ...[
                           Text('说明', style: TextStyle(fontSize: 13, color: T.tx3)),
                           SizedBox(height: 8),
@@ -157,7 +182,7 @@ class _DetailPageState extends State<DetailPage> {
                         ],
                         SizedBox(height: 22),
                         if (related.isNotEmpty) ...[
-                          Text('相关游戏', style: TextStyle(fontSize: 13, color: T.tx3)),
+                          Text('同类推荐', style: TextStyle(fontSize: 13, color: T.tx3)),
                           SizedBox(height: 10),
                           SizedBox(
                             height: 132,
@@ -295,7 +320,7 @@ class _DetailPageState extends State<DetailPage> {
       );
 
   Widget _support() => GestureDetector(
-        onTap: () => _open('https://tkporl.github.io/mrhyfx/sponsor.html'),
+        onTap: () => showSupportSheet(context),
         child: Container(
           width: double.infinity,
           padding: EdgeInsets.symmetric(horizontal: 14, vertical: 13),

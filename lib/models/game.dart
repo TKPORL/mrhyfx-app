@@ -9,6 +9,7 @@ class Game {
   final String linkPc;
   final String linkMobile;
   final String code;
+  final List<String> shots;
   final String date;
 
   const Game({
@@ -22,6 +23,7 @@ class Game {
     this.linkPc = '',
     this.linkMobile = '',
     this.code = '',
+    this.shots = const [],
     this.date = '',
   });
 
@@ -36,6 +38,7 @@ class Game {
         linkPc: (j['linkPc'] ?? '').toString(),
         linkMobile: (j['linkMobile'] ?? '').toString(),
         code: (j['code'] ?? '').toString(),
+        shots: ((j['shots'] as List?) ?? const []).map((e) => e.toString()).toList(),
         date: (j['date'] ?? '').toString(),
       );
 
