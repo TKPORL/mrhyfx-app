@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -87,27 +88,52 @@ class _DetailPageState extends State<DetailPage> {
             ListView(
               padding: EdgeInsets.only(bottom: 120),
               children: [
-                // 完整显示整张图：宽度铺满、按原比例纵向延展，不裁切
-                ColoredBox(
-                  color: Colors.black,
-                  child: CachedNetworkImage(
-                    imageUrl: g.cover,
-                    width: double.infinity,
-                    fit: BoxFit.fitWidth,
-                    fadeInDuration: Duration(milliseconds: 240),
-                    errorWidget: (c, u, e) => SizedBox(height: 220),
+                // 固定 3:4 画幅：底图模糊铺满，原图等比完整居中，不裁切不变形
+                AspectRatio(
+                  aspectRatio: 3 / 4,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      CachedNetworkImage(
+                        imageUrl: g.cover,
+                        fit: BoxFit.cover,
+                        errorWidget: (c, u, e) => ColoredBox(color: T.card2),
+                      ),
+                      ImageFiltered(
+                        imageFilter: ImageFilter.blur(sigmaX: 22, sigmaY: 22),
+                        child: CachedNetworkImage(
+                          imageUrl: g.cover,
+                          fit: BoxFit.cover,
+                          errorWidget: (c, u, e) => ColoredBox(color: T.bg),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(4),
+                        child: CachedNetworkImage(
+                          imageUrl: g.cover,
+                          fit: BoxFit.contain,
+                          fadeInDuration: Duration(milliseconds: 240),
+                          errorWidget: (c, u, e) => SizedBox.shrink(),
+                        ),
+                      ),
+                      IgnorePointer(
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.center,
+                              end: Alignment.bottomCenter,
+                              colors: [Colors.transparent, T.bg.withOpacity(0.9)],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [Color(0x000B0B0C), T.bg],
-                    ),
-                  ),
+                Transform.translate(
+                  offset: Offset(0, -34),
                   child: Padding(
-                    padding: EdgeInsets.fromLTRB(18, 4, 18, 0),
+                    padding: EdgeInsets.fromLTRB(18, 0, 18, 0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

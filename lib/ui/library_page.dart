@@ -61,16 +61,29 @@ class _LibraryPageState extends State<LibraryPage> {
   }
 
   /// 从全部游戏里统计真实类型，按出现次数排序（不写死）
+  static const _tagNoise = {
+    '简介', '更新', '存档', '电脑', '电脑版', '汉化', '中文', '日系', '官方中文版',
+    '生肉', '动态', '步兵', '步兵版', '官中', '官中版', '新作', '全回想',
+  };
+
   List<String> get _tags {
     final count = <String, int>{};
     for (final g in _all) {
       for (final t in g.tags) {
-        if (t.isEmpty) continue;
-        count[t] = (count[t] ?? 0) + 1;
+        final x = t.trim();
+        if (x.isEmpty) continue;
+        if (x.contains(' ')) continue;            // 「百度网盘 发布者备注」这类是整个介绍标题
+        if (x.length > 8) continue;
+        if (_tagNoise.contains(x)) continue;
+        if (RegExp(r'发布者|备注|网盘|链接|解压|出处|原名|别名').hasMatch(x)) continue;
+        count[x] = (count[x] ?? 0) + 1;
       }
     }
-    final list = count.keys.toList()..sort((a, b) => count[b]!.compareTo(count[a]!));
-    return list.take(48).toList();
+    // 只留下真正成类型的：至少出现 3 次且占比够，杂项自动沉底
+    final min = (_all.length * 0.004).round().clamp(3, 9999);
+    final list = count.entries.where((e) => e.value >= min).map((e) => e.key).toList()
+      ..sort((a, b) => count[b]!.compareTo(count[a]!));
+    return list.take(40).toList();
   }
 
   @override
@@ -92,9 +105,24 @@ class _LibraryPageState extends State<LibraryPage> {
                 slivers: [
                   SliverToBoxAdapter(child: _header()),
                   if (_loading)
-                    SliverFillRemaining(
-                        hasScrollBody: false,
-                        child: Center(child: CircularProgressIndicator(color: T.ac)))
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(16, 4, 16, 130),
+                      sliver: SliverGrid(
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 13,
+                          crossAxisSpacing: 10,
+                          childAspectRatio: 1 / 1.28,
+                        ),
+                        delegate: SliverChildBuilderDelegate(
+                          (c, i) => ClipRRect(
+                            borderRadius: BorderRadius.circular(14),
+                            child: const ShimmerBox(),
+                          ),
+                          childCount: 8,
+                        ),
+                      ),
+                    )
                   else if (list.isEmpty)
                     SliverFillRemaining(hasScrollBody: false, child: _empty())
                   else
@@ -163,8 +191,8 @@ class _LibraryPageState extends State<LibraryPage> {
           Text(widget.onlyFav ? '我的收藏' : 'Tsinho 黄油站',
               style: TextStyle(fontSize: 27, fontWeight: FontWeight.w700, letterSpacing: -0.5)),
           SizedBox(height: 4),
-          Text('${_all.length} 款在架 · 每日更新',
-              style: TextStyle(fontSize: 12.5, color: T.tx3)),
+          Text(_loading ? '正在加载全部游戏…' : '${_all.length} 款在架 · 每日更新',
+              style: const TextStyle(fontSize: 12.5, color: T.tx3)),
           SizedBox(height: 10),
           Row(
             children: [
