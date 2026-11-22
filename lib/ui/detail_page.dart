@@ -1,5 +1,4 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -86,9 +85,9 @@ class _DetailPageState extends State<DetailPage> {
         body: Stack(
           children: [
             ListView(
-              padding: EdgeInsets.only(bottom: 120),
+              padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top, bottom: 120),
               children: [
-                // 固定 3:4 画幅：底图模糊铺满，原图等比完整居中，不裁切不变形
+                // 固定 3:4 画幅，所有游戏一致；图片填满裁切（主角偏一侧时由裁切中心决定）
                 AspectRatio(
                   aspectRatio: 3 / 4,
                   child: Stack(
@@ -97,24 +96,8 @@ class _DetailPageState extends State<DetailPage> {
                       CachedNetworkImage(
                         imageUrl: g.cover,
                         fit: BoxFit.cover,
+                        fadeInDuration: Duration(milliseconds: 240),
                         errorWidget: (c, u, e) => ColoredBox(color: T.card2),
-                      ),
-                      ImageFiltered(
-                        imageFilter: ImageFilter.blur(sigmaX: 22, sigmaY: 22),
-                        child: CachedNetworkImage(
-                          imageUrl: g.cover,
-                          fit: BoxFit.cover,
-                          errorWidget: (c, u, e) => ColoredBox(color: T.bg),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.all(4),
-                        child: CachedNetworkImage(
-                          imageUrl: g.cover,
-                          fit: BoxFit.contain,
-                          fadeInDuration: Duration(milliseconds: 240),
-                          errorWidget: (c, u, e) => SizedBox.shrink(),
-                        ),
                       ),
                       IgnorePointer(
                         child: DecoratedBox(
@@ -122,7 +105,7 @@ class _DetailPageState extends State<DetailPage> {
                             gradient: LinearGradient(
                               begin: Alignment.center,
                               end: Alignment.bottomCenter,
-                              colors: [Colors.transparent, T.bg.withOpacity(0.9)],
+                              colors: [Colors.transparent, T.bg.withOpacity(0.92)],
                             ),
                           ),
                         ),
