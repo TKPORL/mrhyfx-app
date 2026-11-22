@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../models/game.dart';
 import '../services/games_repo.dart';
+import 'announce.dart';
 import 'detail_page.dart';
 import 'theme.dart';
 
@@ -106,17 +107,17 @@ class _LibraryPageState extends State<LibraryPage> {
                   SliverToBoxAdapter(child: _header()),
                   if (_loading)
                     SliverPadding(
-                      padding: EdgeInsets.fromLTRB(16, 4, 16, 130),
+                      padding: EdgeInsets.fromLTRB(18, 11, 18, 130),
                       sliver: SliverGrid(
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
                           mainAxisSpacing: 13,
                           crossAxisSpacing: 10,
-                          childAspectRatio: 1 / 1.28,
+                          childAspectRatio: 1 / 0.96,
                         ),
                         delegate: SliverChildBuilderDelegate(
                           (c, i) => ClipRRect(
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(15),
                             child: ShimmerBox(),
                           ),
                           childCount: 8,
@@ -127,13 +128,13 @@ class _LibraryPageState extends State<LibraryPage> {
                     SliverFillRemaining(hasScrollBody: false, child: _empty())
                   else
                     SliverPadding(
-                      padding: EdgeInsets.fromLTRB(16, 4, 16, 130),
+                      padding: EdgeInsets.fromLTRB(18, 11, 18, 130),
                       sliver: SliverGrid(
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
                           mainAxisSpacing: 13,
                           crossAxisSpacing: 10,
-                          childAspectRatio: 1 / 1.28,
+                          childAspectRatio: 1 / 0.96,
                         ),
                         delegate: SliverChildBuilderDelegate(
                           (c, i) => _card(list[i]),
@@ -188,11 +189,37 @@ class _LibraryPageState extends State<LibraryPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(widget.onlyFav ? '我的收藏' : 'Tsinho 黄油站',
-              style: TextStyle(fontSize: 27, fontWeight: FontWeight.w700, letterSpacing: -0.5)),
-          SizedBox(height: 4),
-          Text(_loading ? '正在加载全部游戏…' : '${_all.length} 款在架 · 每日更新',
-              style: TextStyle(fontSize: 12.5, color: T.tx3)),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(widget.onlyFav ? '我的收藏' : 'Tsinho 黄油站',
+                        style: TextStyle(
+                            fontSize: 27, fontWeight: FontWeight.w700, letterSpacing: -0.5)),
+                    SizedBox(height: 4),
+                    Text(_loading ? '正在加载全部游戏…' : '${_all.length} 款在架 · 每日更新',
+                        style: TextStyle(fontSize: 12.5, color: T.tx3)),
+                  ],
+                ),
+              ),
+              GestureDetector(
+                onTap: () => showAnnouncements(context),
+                child: Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: T.glass,
+                    border: Border.all(color: T.line, width: 0.5),
+                  ),
+                  child: Icon(Icons.notifications_none_rounded, size: 19, color: T.tx2),
+                ),
+              ),
+            ],
+          ),
           SizedBox(height: 10),
           Row(
             children: [
@@ -291,13 +318,13 @@ class _LibraryPageState extends State<LibraryPage> {
   }
 
   Widget _card(Game g) {
-    return GestureDetector(
+    return _Pressable(
       onTap: () async {
         await Navigator.of(context).push(MaterialPageRoute(builder: (_) => DetailPage(game: g)));
         widget.onFavChanged();
       },
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(15),
         child: Stack(
           fit: StackFit.expand,
           children: [
@@ -421,6 +448,36 @@ class _ShimmerBoxState extends State<ShimmerBox> with SingleTickerProviderStateM
             colors: [Color(0xFF232326), Color(0xFF303034), Color(0xFF232326)],
           ),
         ),
+      ),
+    );
+  }
+}
+
+
+/// 卡片按压：按下缩到 0.96，松开回弹（对齐 demo 的 :active 缩放）
+class _Pressable extends StatefulWidget {
+  final Widget child;
+  final VoidCallback onTap;
+  const _Pressable({required this.child, required this.onTap});
+  @override
+  State<_Pressable> createState() => _PressableState();
+}
+
+class _PressableState extends State<_Pressable> {
+  bool _down = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: widget.onTap,
+      onTapDown: (_) => setState(() => _down = true),
+      onTapUp: (_) => setState(() => _down = false),
+      onTapCancel: () => setState(() => _down = false),
+      child: AnimatedScale(
+        scale: _down ? 0.96 : 1,
+        duration: Duration(milliseconds: 160),
+        curve: Curves.easeOut,
+        child: widget.child,
       ),
     );
   }
