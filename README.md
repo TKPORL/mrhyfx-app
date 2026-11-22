@@ -14,3 +14,7 @@ Flutter 客户端。数据来自站点仓库自动生成的 `app-games.json`，
 ## 应用图标
 源图 `assets/app_icon.png`（1024×1024），由 CI 里的 `flutter_launcher_icons` 生成各密度 mipmap（`android/` 不入库，所以不能在本地生成后提交）。
 换图标 = 替换源图后推送。
+
+## 详情页画幅（定稿）
+统一 **3:4**（`AspectRatio(3/4)` + `BoxFit.cover`）：所有游戏封面同一比例、填满裁切，图片从状态栏下方开始。
+这是站长 2026-11-23 确认的方案，别再改成 contain/原比例（会破坏列表整齐度）。
