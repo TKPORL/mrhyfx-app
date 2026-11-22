@@ -85,11 +85,11 @@ class _DetailPageState extends State<DetailPage> {
         body: Stack(
           children: [
             ListView(
-              padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top, bottom: 120),
+              padding: EdgeInsets.only(bottom: 120),
               children: [
                 // 固定 3:4 画幅，所有游戏一致；图片填满裁切（主角偏一侧时由裁切中心决定）
                 SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.45,
+                  height: 318,
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
@@ -103,9 +103,15 @@ class _DetailPageState extends State<DetailPage> {
                         child: DecoratedBox(
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
-                              begin: Alignment.center,
+                              begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
-                              colors: [Colors.transparent, T.bg.withOpacity(0.92)],
+                              colors: [
+                                Color(0x990B0B0C),
+                                Colors.transparent,
+                                Colors.transparent,
+                                T.bg,
+                              ],
+                              stops: [0, 0.22, 0.46, 1],
                             ),
                           ),
                         ),
@@ -113,8 +119,10 @@ class _DetailPageState extends State<DetailPage> {
                     ],
                   ),
                 ),
-                Padding(
-                    padding: EdgeInsets.fromLTRB(18, 16, 18, 0),
+                Transform.translate(
+                  offset: Offset(0, -56),
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(18, 0, 18, 0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -196,6 +204,7 @@ class _DetailPageState extends State<DetailPage> {
                         SizedBox(height: 10),
                       ],
                     ),
+                  ),
                 ),
               ],
             ),
