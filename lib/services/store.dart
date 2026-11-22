@@ -46,6 +46,9 @@ class Store {
     await p.setString('recent', jsonEncode(v));
   }
 
+  static Future<String?> stamp() async => (await _prefs).getString('data_stamp');
+  static Future<void> setStamp(String v) async => (await _prefs).setString('data_stamp', v);
+
   static Future<void> clearAll() async {
     final p = await _prefs;
     await p.remove('favs');

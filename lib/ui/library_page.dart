@@ -88,6 +88,7 @@ class _LibraryPageState extends State<LibraryPage> {
               onRefresh: () => _load(force: true),
               child: CustomScrollView(
                 controller: _scroll,
+                physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
                 slivers: [
                   SliverToBoxAdapter(child: _header()),
                   if (_loading)
@@ -316,18 +317,47 @@ class _LibraryPageState extends State<LibraryPage> {
   }
 
   Widget _empty() {
+    final err = GamesRepo.error;
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.inbox_rounded, size: 42, color: T.tx3),
-          SizedBox(height: 12),
-          Text(widget.onlyFav ? '还没有收藏' : '暂时没有数据',
-              style: TextStyle(fontSize: 15, color: T.tx2)),
-          SizedBox(height: 6),
-          Text(widget.onlyFav ? '在详情页点右上角的心形' : '下拉刷新试试',
-              style: TextStyle(fontSize: 12.5, color: T.tx3)),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 40),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(err != null ? Icons.wifi_off_rounded : Icons.inbox_rounded,
+                size: 42, color: T.tx3),
+            const SizedBox(height: 12),
+            Text(
+                widget.onlyFav
+                    ? '还没有收藏'
+                    : err != null
+                        ? '没连上数据'
+                        : '暂时没有数据',
+                style: const TextStyle(fontSize: 15, color: T.tx2)),
+            const SizedBox(height: 6),
+            Text(
+                widget.onlyFav
+                    ? '在详情页点右上角的心形'
+                    : err ?? '下拉可以刷新',
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 12.5, color: T.tx3, height: 1.6)),
+            if (!widget.onlyFav && err != null) ...[
+              const SizedBox(height: 18),
+              GestureDetector(
+                onTap: () => _load(force: true),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 11),
+                  decoration: BoxDecoration(
+                    color: T.ac.withOpacity(0.14),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Text('重新加载',
+                      style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600, color: T.ac)),
+                ),
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
