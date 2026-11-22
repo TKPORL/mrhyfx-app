@@ -71,10 +71,17 @@ class _DetailPageState extends State<DetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final related = GamesRepo.all
+    var related = GamesRepo.all
         .where((x) => x.id != g.id && x.tags.any(g.tags.contains))
         .take(6)
         .toList();
+    // 标签太少匹配不到时，用同平台兜底，避免这里空着
+    if (related.isEmpty) {
+      related = GamesRepo.all
+          .where((x) => x.id != g.id && x.platform == g.platform)
+          .take(6)
+          .toList();
+    }
 
     return GestureDetector(
       onHorizontalDragStart: (d) => _sx = d.globalPosition.dx,

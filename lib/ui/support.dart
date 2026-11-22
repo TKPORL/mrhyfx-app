@@ -88,11 +88,13 @@ Widget _qr(BuildContext c, String url, String label) {
             borderRadius: BorderRadius.circular(10),
             child: AspectRatio(
               aspectRatio: 1,
-              child: CachedNetworkImage(
-                imageUrl: url,
-                fit: BoxFit.contain,
-                backgroundColor: Colors.white,
-                errorWidget: (a, b, d) => ColoredBox(color: T.card2),
+              child: ColoredBox(
+                color: Colors.white,
+                child: CachedNetworkImage(
+                  imageUrl: url,
+                  fit: BoxFit.contain,
+                  errorWidget: (a, b, d) => ColoredBox(color: T.card2),
+                ),
               ),
             ),
           ),

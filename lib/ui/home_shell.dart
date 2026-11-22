@@ -29,7 +29,7 @@ class _HomeShellState extends State<HomeShell> {
   Widget build(BuildContext context) {
     final pages = [
       LibraryPage(favs: _favs, onFavChanged: reloadFavs),
-      LibraryPage(favs: _favs, onFavChanged: reloadFavs, onlyFav: true),
+      LibraryPage(favs: _favs, onFavChanged: reloadFavs, onlyFav: true, onGoLibrary: () => setState(() => _i = 0)),
       MePage(),
     ];
     return Scaffold(

@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../models/game.dart';
 import '../services/games_repo.dart';
+import '../services/store.dart';
 import 'announce.dart';
 import 'detail_page.dart';
 import 'theme.dart';
@@ -48,6 +49,20 @@ class _LibraryPageState extends State<LibraryPage> {
       _all = list;
       _loading = false;
     });
+  }
+
+  Future<void> _toggleFav(int id) async {
+    final v = await Store.favs();
+    if (!v.remove(id)) v.add(id);
+    await Store.saveFavs(v);
+    await widget.onFavChanged();
+  }
+
+  bool _isNew(Game g) {
+    if (g.date.isEmpty) return false;
+    final d = DateTime.tryParse(g.date);
+    if (d == null) return false;
+    return DateTime.now().difference(d).inDays <= 7;
   }
 
   List<Game> get _shown {
@@ -345,6 +360,41 @@ class _LibraryPageState extends State<LibraryPage> {
                 ),
               ),
             ),
+            if (_isNew(g))
+              Positioned(
+                top: 8,
+                left: 8,
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: T.ac,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text('NEW',
+                      style: TextStyle(
+                          fontSize: 9.5, fontWeight: FontWeight.w800, color: Colors.black)),
+                ),
+              ),
+            Positioned(
+              top: 6,
+              right: 6,
+              child: GestureDetector(
+                onTap: () => _toggleFav(g.id),
+                child: Container(
+                  width: 28,
+                  height: 28,
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.32),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    widget.favs.contains(g.id) ? Icons.favorite : Icons.favorite_border,
+                    size: 15,
+                    color: widget.favs.contains(g.id) ? Color(0xFFFF375F) : Colors.white,
+                  ),
+                ),
+              ),
+            ),
             Positioned(
               left: 10,
               right: 10,
@@ -392,10 +442,27 @@ class _LibraryPageState extends State<LibraryPage> {
             SizedBox(height: 6),
             Text(
                 widget.onlyFav
-                    ? '在详情页点右上角的心形'
+                    ? '在游戏封面右上角点一下心形，就会出现在这里'
                     : err ?? '下拉可以刷新',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 12.5, color: T.tx3, height: 1.6)),
+            if (widget.onlyFav && widget.onGoLibrary != null) ...[
+              SizedBox(height: 18),
+              GestureDetector(
+                onTap: widget.onGoLibrary,
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 22, vertical: 11),
+                  decoration: BoxDecoration(
+                    color: T.ac.withOpacity(0.14),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: T.ac.withOpacity(0.35), width: 0.5),
+                  ),
+                  child: Text('去游戏库逛逛',
+                      style: TextStyle(
+                          fontSize: 13.5, fontWeight: FontWeight.w600, color: T.ac)),
+                ),
+              ),
+            ],
             if (!widget.onlyFav && err != null) ...[
               SizedBox(height: 18),
               GestureDetector(
