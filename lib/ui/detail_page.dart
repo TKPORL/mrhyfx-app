@@ -89,7 +89,7 @@ class _DetailPageState extends State<DetailPage> {
               children: [
                 // 固定 3:4 画幅，所有游戏一致；图片填满裁切（主角偏一侧时由裁切中心决定）
                 SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.56,
+                  height: MediaQuery.of(context).size.height * 0.45,
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
