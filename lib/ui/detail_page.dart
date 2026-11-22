@@ -88,8 +88,8 @@ class _DetailPageState extends State<DetailPage> {
               padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top, bottom: 120),
               children: [
                 // 固定 3:4 画幅，所有游戏一致；图片填满裁切（主角偏一侧时由裁切中心决定）
-                AspectRatio(
-                  aspectRatio: 3 / 4,
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.56,
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
@@ -113,10 +113,8 @@ class _DetailPageState extends State<DetailPage> {
                     ],
                   ),
                 ),
-                Transform.translate(
-                  offset: Offset(0, -34),
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(18, 0, 18, 0),
+                Padding(
+                    padding: EdgeInsets.fromLTRB(18, 16, 18, 0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -198,7 +196,6 @@ class _DetailPageState extends State<DetailPage> {
                         SizedBox(height: 10),
                       ],
                     ),
-                  ),
                 ),
               ],
             ),
