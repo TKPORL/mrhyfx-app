@@ -1,0 +1,30 @@
+{
+  "groups": [
+    {
+      "name": "主群",
+      "url": "https://qm.qq.com/q/E3WKZvqwAa",
+      "qq": "1063428520"
+    },
+    {
+      "name": "二群",
+      "url": "https://qm.qq.com/q/WBvMMALeYS",
+      "qq": "1063427149"
+    },
+    {
+      "name": "三群",
+      "url": "https://qm.qq.com/q/FGM3WKIoyA",
+      "qq": "636931604"
+    }
+  ],
+  "contacts": [
+    {
+      "name": "Telegram群聊",
+      "url": "https://t.me/Tsinhox"
+    },
+    {
+      "name": "站长QQ",
+      "url": "https://qm.qq.com/q/Ya8wQpPaeW"
+    }
+  ],
+  "updated": "2026-11-22"
+}
