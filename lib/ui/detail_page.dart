@@ -125,9 +125,9 @@ class _DetailPageState extends State<DetailPage> {
                         const SizedBox(height: 16),
                         Row(
                           children: [
-                            _fact(g.sizeDisplay, '体积'),
+                            if (g.sizeDisplay != '—') _fact(g.sizeDisplay, '体积'),
                             _fact(g.platform, '平台'),
-                            _fact(g.typeDisplay, '类型'),
+                            if (g.typeDisplay != '—') _fact(g.typeDisplay, '类型'),
                           ],
                         ),
                         const SizedBox(height: 18),
