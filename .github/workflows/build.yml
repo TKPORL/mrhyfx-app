@@ -61,6 +61,10 @@ jobs:
           grep -n -A4 "lint" android/app/build.gradle.kts || true
 
       - run: flutter pub get
+
+      # 应用图标：android/ 由 CI 现场生成，所以图标也必须在这里生成
+      - name: 生成应用图标
+        run: dart run flutter_launcher_icons
       - run: flutter build apk --release
 
       - uses: actions/upload-artifact@v4

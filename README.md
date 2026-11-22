@@ -10,3 +10,7 @@ Flutter 客户端。数据来自站点仓库自动生成的 `app-games.json`，
 ## 外观
 支持 深色 / 浅色 / 跟随系统，入口在「我的 → 外观」。
 颜色集中在 `lib/ui/theme.dart` 的 `T`，通过 `T.light` 切换；**新增控件请用 `T.xxx`，不要写死颜色**，否则浅色模式下会看不见。
+
+## 应用图标
+源图 `assets/app_icon.png`（1024×1024），由 CI 里的 `flutter_launcher_icons` 生成各密度 mipmap（`android/` 不入库，所以不能在本地生成后提交）。
+换图标 = 替换源图后推送。
