@@ -11,7 +11,8 @@ class LibraryPage extends StatefulWidget {
   final Set<int> favs;
   final Future<void> Function() onFavChanged;
   final bool onlyFav;
-  LibraryPage({super.key, required this.favs, required this.onFavChanged, this.onlyFav = false});
+  final VoidCallback? onGoLibrary;
+  LibraryPage({super.key, required this.favs, required this.onFavChanged, this.onlyFav = false, this.onGoLibrary});
 
   @override
   State<LibraryPage> createState() => _LibraryPageState();
