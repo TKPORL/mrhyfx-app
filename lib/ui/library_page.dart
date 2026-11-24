@@ -76,7 +76,9 @@ class _LibraryPageState extends State<LibraryPage> with WidgetsBindingObserver {
         .toLowerCase();
     final out = <Game>[];
     for (final it in items) {
-      final key = norm((it['name'] ?? '').toString());
+      final raw = (it['name'] ?? '').toString();
+      if (raw.contains('合集') || raw.contains('本帖')) continue;  // 合集链接不是单个游戏
+      final key = norm(raw);
       if (key.length < 2) continue;
       for (final g in _all) {
         final t = norm(g.title);
