@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/game.dart';
 import '../services/api.dart';
 import '../services/games_repo.dart';
+import '../services/search_match.dart';
 import '../services/store.dart';
 import 'announce.dart';
 import 'detail_page.dart';
@@ -28,6 +29,7 @@ class _LibraryPageState extends State<LibraryPage> with WidgetsBindingObserver {
   final _scroll = ScrollController();
   bool _showTop = false;
   List<Game> _hot = [];
+  bool _noHit = false;
 
   @override
   void initState() {
@@ -116,8 +118,27 @@ class _LibraryPageState extends State<LibraryPage> with WidgetsBindingObserver {
     }
     if (_tag.isNotEmpty) l = l.where((g) => g.tags.contains(_tag)).toList();
     if (_kw.isNotEmpty) {
-      final k = _kw.toLowerCase();
-      l = l.where((g) => g.title.toLowerCase().contains(k)).toList();
+      final vs = SearchMatch.variants(_kw);
+      final hit = <Game>[];
+      final rank = <int, int>{};
+      for (final g in l) {
+        final sc = SearchMatch.score(g.title, '${g.tags.join(' ')} ${g.platform}', vs);
+        if (sc < 9) {
+          hit.add(g);
+          rank[g.id] = sc;
+        }
+      }
+      if (hit.isNotEmpty) {
+        hit.sort((a, b) => (rank[a.id] ?? 9).compareTo(rank[b.id] ?? 9));
+        l = hit;
+        _noHit = false;
+      } else {
+        // 一条都没命中 → 给 20 款推荐，而不是空白
+        l = l.take(20).toList();
+        _noHit = true;
+      }
+    } else {
+      _noHit = false;
     }
     // 没有任何筛选时，把求助帖剩下的内容每隔 6 条插一条，融合进首页而不是单堆一处
     if (!widget.onlyFav && _kw.isEmpty && _tag.isEmpty) {
@@ -347,8 +368,13 @@ class _LibraryPageState extends State<LibraryPage> with WidgetsBindingObserver {
                         style: TextStyle(
                             fontSize: 27, fontWeight: FontWeight.w700, letterSpacing: -0.5)),
                     SizedBox(height: 4),
-                    Text(_loading ? '正在加载全部游戏…' : '${_all.length} 款在架 · 每日更新',
-                        style: TextStyle(fontSize: 12.5, color: T.tx3)),
+                    Text(
+                        _loading
+                            ? '正在加载全部游戏…'
+                            : _noHit
+                                ? '没找到「$_kw」，先看看这 ${_shown.length} 款'
+                                : '${_all.length} 款在架 · 每日更新',
+                        style: TextStyle(fontSize: 12.5, color: _noHit ? T.ac : T.tx3)),
                   ],
                 ),
               ),
