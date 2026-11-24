@@ -4,6 +4,7 @@ import 'library_page.dart';
 import 'qzt_page.dart';
 import '../services/store.dart';
 import 'me_page.dart';
+import '../services/tab_tick.dart';
 import 'theme.dart';
 
 class HomeShell extends StatefulWidget {
@@ -38,8 +39,15 @@ class _HomeShellState extends State<HomeShell> {
     return Scaffold(
       backgroundColor: T.bg,
       extendBody: true,
-      body: IndexedStack(index: _i, children: pages),
-      bottomNavigationBar: _PillNav(index: _i, onTap: (i) => setState(() => _i = i)),
+      // TickerMode：只有当前页的动画在跑，切过去才播，避免隐藏页提前播完
+      body: IndexedStack(
+        index: _i,
+        children: [
+          for (var i = 0; i < pages.length; i++)
+            TickerMode(enabled: _i == i, child: pages[i]),
+        ],
+      ),
+      bottomNavigationBar: _PillNav(index: _i, onTap: (i) { setState(() => _i = i); TabTick.bump(); }),
     );
   }
 }
