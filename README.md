@@ -18,3 +18,8 @@ Flutter 客户端。数据来自站点仓库自动生成的 `app-games.json`，
 ## 详情页画幅（定稿）
 统一 **3:4**（`AspectRatio(3/4)` + `BoxFit.cover`）：所有游戏封面同一比例、填满裁切，图片从状态栏下方开始。
 这是站长 2026-11-23 确认的方案，别再改成 contain/原比例（会破坏列表整齐度）。
+
+## 提交纪律（务必遵守）
+后台是通过 GitHub API 直接写 `announcements.json` / `version.json` / `app-links.json` 的，**本地没有这些文件的副本**。
+所以在本地提交时 **绝对不要用 `git add -A` / `git add .`**——它会把「远端有、本地没有」的三份配置当成删除提交，导致后台数据凭空消失（2026-11-24 踩过，`e895ad7` 删掉了 announcements.json）。
+只 add 明确路径，例如 `git add lib/ui/detail_page.dart`。
