@@ -52,7 +52,7 @@ class _PillNav extends StatelessWidget {
   static final _items = [
     (Icons.grid_view_rounded, '游戏库'),
     (Icons.local_fire_department_rounded, '热门'),
-    (Icons.forum_outlined, '求游戏'),
+    (Icons.forum_outlined, '求助帖'),
     (Icons.person_rounded, '我的'),
   ];
 

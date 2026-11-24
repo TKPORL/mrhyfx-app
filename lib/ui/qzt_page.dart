@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../models/game.dart';
 import '../services/games_repo.dart';
 import 'detail_page.dart';
@@ -53,12 +54,38 @@ class _QztPageState extends State<QztPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('求游戏',
+                      Text('求助帖',
                           style: TextStyle(
                               fontSize: 24, fontWeight: FontWeight.w700, letterSpacing: -0.5)),
                       SizedBox(height: 5),
-                      Text('评论区里大家想要、后来补上的游戏，共 ${_list.length} 款 · 最新在前',
+                      Text('求助的游戏资源，共 ${_list.length} 款 · 最新在前',
                           style: TextStyle(fontSize: 12.5, color: T.tx3)),
+                      SizedBox(height: 12),
+                      GestureDetector(
+                        onTap: () => launchUrl(
+                            Uri.parse('https://tkporl.github.io/mrhyfx/qzt.html'),
+                            mode: LaunchMode.externalApplication),
+                        child: Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: T.ac.withOpacity(0.10),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: T.ac.withOpacity(0.22), width: 0.5),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.edit_note_rounded, size: 17, color: T.ac),
+                              SizedBox(width: 9),
+                              Expanded(
+                                child: Text('想求游戏？去网页求助帖留言',
+                                    style: TextStyle(fontSize: 13, color: T.tx2)),
+                              ),
+                              Icon(Icons.open_in_new, size: 14, color: T.ac),
+                            ],
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
