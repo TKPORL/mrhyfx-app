@@ -10,6 +10,7 @@ class Game {
   final String linkMobile;
   final String code;
   final List<String> shots;
+  final String page;
   final String date;
 
   const Game({
@@ -24,6 +25,7 @@ class Game {
     this.linkMobile = '',
     this.code = '',
     this.shots = const [],
+    this.page = '',
     this.date = '',
   });
 
@@ -39,7 +41,25 @@ class Game {
         linkMobile: (j['linkMobile'] ?? '').toString(),
         code: (j['code'] ?? '').toString(),
         shots: ((j['shots'] as List?) ?? const []).map((e) => e.toString()).toList(),
+        page: (j['page'] ?? '').toString(),
         date: (j['date'] ?? '').toString(),
+      );
+
+  /// 详情分片回填（列表接口不再带长文本）
+  Game withDetail(Map d) => Game(
+        id: id,
+        title: title,
+        cover: cover,
+        platform: platform,
+        size: size,
+        tags: tags,
+        intro: (d['intro'] ?? intro).toString(),
+        linkPc: (d['linkPc'] ?? '').toString(),
+        linkMobile: (d['linkMobile'] ?? '').toString(),
+        code: (d['code'] ?? code).toString(),
+        shots: ((d['shots'] as List?) ?? const []).map((e) => e.toString()).toList(),
+        page: page,
+        date: date,
       );
 
   /// 体积：数据里没有就从简介里再抓一次

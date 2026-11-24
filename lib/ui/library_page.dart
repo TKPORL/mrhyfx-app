@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../models/game.dart';
+import '../services/api.dart';
 import '../services/games_repo.dart';
 import '../services/store.dart';
 import 'announce.dart';
@@ -18,17 +19,19 @@ class LibraryPage extends StatefulWidget {
   State<LibraryPage> createState() => _LibraryPageState();
 }
 
-class _LibraryPageState extends State<LibraryPage> {
+class _LibraryPageState extends State<LibraryPage> with WidgetsBindingObserver {
   List<Game> _all = [];
   bool _loading = true;
   String _kw = '';
   String _tag = '';
   final _scroll = ScrollController();
   bool _showTop = false;
+  List<Game> _hot = [];
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _scroll.addListener(() {
       final on = _scroll.offset > 700;
       if (on != _showTop) setState(() => _showTop = on);
@@ -37,7 +40,17 @@ class _LibraryPageState extends State<LibraryPage> {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && !widget.onlyFav) {
+      GamesRepo.checkUpdate().then((has) {
+        if (has) _load();
+      });
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _scroll.dispose();
     super.dispose();
   }
@@ -50,6 +63,31 @@ class _LibraryPageState extends State<LibraryPage> {
       _all = list;
       _loading = false;
     });
+    if (!widget.onlyFav) _loadHot();
+  }
+
+  /// 热门来自站点下载点击统计（app-hot.json），按名字归一化后回列表里找封面
+  Future<void> _loadHot() async {
+    final data = await Api.json(Api.repo, 'app-hot.json');
+    final items = ((data?['items'] as List?) ?? const []).whereType<Map>();
+    String norm(String x) => x
+        .replaceAll(RegExp(r'PC\+安卓|PC|安卓|手机|双端|直装', caseSensitive: false), '')
+        .replaceAll(RegExp(r'[\s\-_·（）()【】\[\]]'), '')
+        .toLowerCase();
+    final out = <Game>[];
+    for (final it in items) {
+      final key = norm((it['name'] ?? '').toString());
+      if (key.length < 2) continue;
+      for (final g in _all) {
+        final t = norm(g.title);
+        if (t == key || (key.length > 3 && t.contains(key)) || (t.length > 3 && key.contains(t))) {
+          if (!out.any((x) => x.id == g.id)) out.add(g);
+          break;
+        }
+      }
+      if (out.length >= 10) break;
+    }
+    if (mounted) setState(() => _hot = out);
   }
 
   Future<void> _toggleFav(int id) async {
@@ -121,6 +159,8 @@ class _LibraryPageState extends State<LibraryPage> {
                 physics: AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
                 slivers: [
                   SliverToBoxAdapter(child: _header()),
+                  if (!widget.onlyFav && _hot.isNotEmpty)
+                    SliverToBoxAdapter(child: _hotRow()),
                   if (_loading)
                     SliverPadding(
                       padding: EdgeInsets.fromLTRB(18, 11, 18, 130),
@@ -198,6 +238,71 @@ class _LibraryPageState extends State<LibraryPage> {
           child: Icon(Icons.keyboard_arrow_up_rounded, size: 22, color: T.tx),
         ),
       );
+
+  Widget _hotRow() {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(18, 4, 0, 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.local_fire_department_rounded, size: 15, color: T.ac),
+              SizedBox(width: 5),
+              Text('热门', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: T.tx)),
+              SizedBox(width: 8),
+              Text('按站内下载量', style: TextStyle(fontSize: 11, color: T.tx3)),
+            ],
+          ),
+          SizedBox(height: 9),
+          SizedBox(
+            height: 128,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              padding: EdgeInsets.only(right: 18),
+              itemCount: _hot.length,
+              separatorBuilder: (c, i) => SizedBox(width: 10),
+              itemBuilder: (c, i) {
+                final g = _hot[i];
+                return GestureDetector(
+                  onTap: () async {
+                    await Navigator.of(context)
+                        .push(MaterialPageRoute(builder: (_) => DetailPage(game: g)));
+                    widget.onFavChanged();
+                  },
+                  child: SizedBox(
+                    width: 96,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(11),
+                          child: CachedNetworkImage(
+                            imageUrl: g.cover,
+                            width: 96,
+                            height: 96,
+                            fit: BoxFit.cover,
+                            placeholder: (c, u) => SizedBox(width: 96, height: 96, child: ShimmerBox()),
+                            errorWidget: (c, u, e) =>
+                                SizedBox(width: 96, height: 96, child: ColoredBox(color: T.card2)),
+                          ),
+                        ),
+                        SizedBox(height: 5),
+                        Text(g.title,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(fontSize: 11, height: 1.25, color: T.tx2)),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _header() {
     return Padding(

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/game.dart';
+import '../services/api.dart';
 import '../services/games_repo.dart';
 import '../services/store.dart';
 import 'theme.dart';
@@ -21,15 +22,32 @@ class _DetailPageState extends State<DetailPage> {
   String? _codeShown;
   double _sx = 999;
 
-  Game get g => widget.game;
+  late Game g;
 
   @override
   void initState() {
     super.initState();
+    g = widget.game;
+    _loadDetail();
     Store.favs().then((v) {
       if (mounted) setState(() => _fav = v.contains(g.id));
     });
     Store.pushRecent(g.id);
+  }
+
+  /// 列表接口只带轻量字段，简介/解压码/链接从该帖分片里按需拉
+  Future<void> _loadDetail() async {
+    if (g.intro.isNotEmpty || g.page.isEmpty) return;
+    final data = await Api.rawJson(Api.repo, 'app-details/${g.page}.json');
+    if (data is! List || !mounted) return;
+    Map? hit;
+    for (final m in data.whereType<Map>()) {
+      if ((m['id'] as num?)?.toInt() == g.id) {
+        hit = m;
+        break;
+      }
+    }
+    if (hit != null) setState(() => g = g.withDetail(hit!));
   }
 
   Future<void> _toggleFav() async {

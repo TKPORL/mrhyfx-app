@@ -50,6 +50,15 @@ class GamesRepo {
     return _all;
   }
 
+  /// 只比对版本，不下载；返回 true 表示线上有更新
+  static Future<bool> checkUpdate() async {
+    final ver = await Api.json(Api.repo, 'app-version.json');
+    if (ver == null) return false;
+    final remote = '${ver['updated']}|${ver['count']}';
+    final local = await Store.stamp();
+    return remote != local;
+  }
+
   static Game? byId(int id) {
     for (final g in _all) {
       if (g.id == id) return g;
