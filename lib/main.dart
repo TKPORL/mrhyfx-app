@@ -65,7 +65,14 @@ class TsinhoApp extends StatelessWidget {
             child: child,
           );
         },
-        home: const HomeShell(),
+        // 主题一变就把整壳重建：底部胶囊等用 T.* 取值的地方才会立刻跟上
+      home: ValueListenableBuilder<ThemeMode>(
+        valueListenable: ThemeCtrl.mode,
+        builder: (c, m, _) {
+          T.light = Theme.of(c).brightness == Brightness.light;
+          return const HomeShell();
+        },
+      ),
       ),
     );
   }
