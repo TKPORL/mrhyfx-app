@@ -6,6 +6,7 @@ import '../services/games_repo.dart';
 import '../services/store.dart';
 import 'announce.dart';
 import 'detail_page.dart';
+import 'enter.dart';
 import 'theme.dart';
 
 class LibraryPage extends StatefulWidget {
@@ -218,7 +219,7 @@ class _LibraryPageState extends State<LibraryPage> with WidgetsBindingObserver {
                           childAspectRatio: 1 / 0.96,
                         ),
                         delegate: SliverChildBuilderDelegate(
-                          (c, i) => _card(list[i]),
+                          (c, i) => EnterFade(index: i, child: _card(list[i])),
                           childCount: list.length,
                         ),
                       ),

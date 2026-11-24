@@ -4,6 +4,7 @@ import '../models/game.dart';
 import '../services/api.dart';
 import '../services/games_repo.dart';
 import 'detail_page.dart';
+import 'enter.dart';
 import 'theme.dart';
 
 /// 热门：按站点下载量排序，每次进入都重新拉榜单（不吃缓存）
@@ -110,7 +111,7 @@ class _HotPageState extends State<HotPage> {
                       childAspectRatio: 1 / 0.96,
                     ),
                     delegate: SliverChildBuilderDelegate(
-                      (c, i) => _card(_list[i], i + 1),
+                      (c, i) => EnterFade(index: i, child: _card(_list[i], i + 1)),
                       childCount: _list.length,
                     ),
                   ),

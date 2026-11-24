@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../models/game.dart';
 import '../services/games_repo.dart';
 import 'detail_page.dart';
+import 'enter.dart';
 import 'theme.dart';
 
 /// 求助帖专区：页面底部是最新，这里按 qztRank 升序（最新在前）展示全量
@@ -78,7 +79,7 @@ class _QztPageState extends State<QztPage> {
                               Icon(Icons.edit_note_rounded, size: 17, color: T.ac),
                               SizedBox(width: 9),
                               Expanded(
-                                child: Text('想求游戏？去网页求助帖留言',
+                                child: Text('想求游戏？点我到求助帖留言',
                                     style: TextStyle(fontSize: 13, color: T.tx2)),
                               ),
                               Icon(Icons.open_in_new, size: 14, color: T.ac),
@@ -105,7 +106,7 @@ class _QztPageState extends State<QztPage> {
                       childAspectRatio: 1 / 0.96,
                     ),
                     delegate: SliverChildBuilderDelegate(
-                      (c, i) => _card(_list[i]),
+                      (c, i) => EnterFade(index: i, child: _card(_list[i])),
                       childCount: _list.length,
                     ),
                   ),
@@ -167,7 +168,9 @@ class _QztPageState extends State<QztPage> {
                       style: TextStyle(
                           fontSize: 13, fontWeight: FontWeight.w600, height: 1.3, color: Colors.white)),
                   SizedBox(height: 4),
-                  Text('第 ${g.qztRank} 条',
+                  Text(g.platform,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(fontSize: 10.5, color: Color(0xB3FFFFFF))),
                 ],
               ),

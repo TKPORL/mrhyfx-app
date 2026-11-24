@@ -28,6 +28,7 @@ class _MePageState extends State<MePage> {
   int _annCount = 0;
   String _ver = '1.0.0';
   String _modeLabel = '深色';
+  String _dimLabel = '100%';
 
   @override
   void initState() {
@@ -107,7 +108,8 @@ class _MePageState extends State<MePage> {
             _group([
               _row(Icons.brightness_4_outlined, const Color(0xFF5E5CE6), '外观',
                   value: _modeLabel, onTap: _pickTheme),
-              _brightnessRow(),
+              _row(Icons.brightness_6_outlined, Color(0xFF30D158), '屏幕亮度',
+                  value: _dimLabel, onTap: _pickBrightness),
             ]),
             if (groups.isNotEmpty || contacts.isNotEmpty) ...[
               SizedBox(height: 14),
@@ -149,6 +151,75 @@ class _MePageState extends State<MePage> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickBrightness() async {
+    await showModalBottomSheet(
+      context: context,
+      backgroundColor: T.card,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (c) => SafeArea(
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(20, 14, 20, 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('屏幕亮度',
+                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: T.tx)),
+              SizedBox(height: 4),
+              Text('只影响 APP 画面，不改系统亮度',
+                  style: TextStyle(fontSize: 12, color: T.tx3)),
+              SizedBox(height: 10),
+              ValueListenableBuilder<double>(
+                valueListenable: Dim.value,
+                builder: (c2, v, _) => Column(
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.brightness_low_rounded, size: 18, color: T.tx3),
+                        Expanded(
+                          child: SliderTheme(
+                            data: SliderTheme.of(context).copyWith(
+                              trackHeight: 3,
+                              thumbShape: RoundSliderThumbShape(enabledThumbRadius: 8),
+                              overlayShape: SliderComponentShape.noOverlay,
+                              activeTrackColor: T.ac,
+                              inactiveTrackColor: T.card2,
+                              thumbColor: T.ac,
+                            ),
+                            child: Slider(
+                              min: 0,
+                              max: 0.6,
+                              value: v,
+                              onChanged: (x) {
+                                Dim.value.value = x;
+                                setState(() => _dimLabel = '${((1 - x / 0.6) * 100).round()}%');
+                              },
+                            ),
+                          ),
+                        ),
+                        Icon(Icons.brightness_high_rounded, size: 18, color: T.tx3),
+                      ],
+                    ),
+                    SizedBox(height: 4),
+                    GestureDetector(
+                      onTap: () {
+                        Dim.value.value = 0;
+                        setState(() => _dimLabel = '100%');
+                      },
+                      child: Text('恢复默认亮度',
+                          style: TextStyle(fontSize: 12.5, color: T.ac)),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 6),
+            ],
+          ),
         ),
       ),
     );
