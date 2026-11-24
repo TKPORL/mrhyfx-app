@@ -112,8 +112,9 @@ class _LibraryPageState extends State<LibraryPage> with WidgetsBindingObserver {
     var l = _all;
     if (widget.onlyFav) {
       l = l.where((g) => widget.favs.contains(g.id)).toList();
-    } else {
-      // 首页：求助帖最新 10 条照常排在最前，其余不整块堆一起，稍后按间隔穿插
+    } else if (_tag.isEmpty && _kw.isEmpty) {
+      // 只有「首页无筛选」时才限制求助帖只显示最新 10 条；
+      // 搜索/按类型筛必须搜全库，否则求助帖里 250 多条永远搜不到（2026-11-24 真实反馈）
       l = l.where((g) => g.source != 'qzt' || g.qztRank <= 10).toList();
     }
     if (_tag.isNotEmpty) l = l.where((g) => g.tags.contains(_tag)).toList();
