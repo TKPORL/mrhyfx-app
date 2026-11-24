@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'hot_page.dart';
 import 'library_page.dart';
 import '../services/store.dart';
 import 'me_page.dart';
@@ -29,6 +30,7 @@ class _HomeShellState extends State<HomeShell> {
   Widget build(BuildContext context) {
     final pages = [
       LibraryPage(favs: _favs, onFavChanged: reloadFavs),
+      HotPage(),
       LibraryPage(favs: _favs, onFavChanged: reloadFavs, onlyFav: true, onGoLibrary: () => setState(() => _i = 0)),
       MePage(),
     ];
@@ -48,6 +50,7 @@ class _PillNav extends StatelessWidget {
 
   static final _items = [
     (Icons.grid_view_rounded, '游戏库'),
+    (Icons.local_fire_department_rounded, '热门'),
     (Icons.favorite_rounded, '收藏'),
     (Icons.person_rounded, '我的'),
   ];
@@ -55,7 +58,7 @@ class _PillNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final w = MediaQuery.of(context).size.width;
-    final itemW = 78.0;
+    final itemW = 72.0;
     return SafeArea(
       top: false,
       child: Padding(

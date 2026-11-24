@@ -100,6 +100,10 @@ class _DetailPageState extends State<DetailPage> {
           .take(6)
           .toList();
     }
+    // 还是空（冷门游戏、标签和平台都匹配不到）→ 取浏览记录里的邻居，保证这一块不空
+    if (related.isEmpty) {
+      related = GamesRepo.all.where((x) => x.id != g.id).take(6).toList();
+    }
 
     return GestureDetector(
       onHorizontalDragStart: (d) => _sx = d.globalPosition.dx,

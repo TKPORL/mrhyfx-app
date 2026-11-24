@@ -63,7 +63,6 @@ class _LibraryPageState extends State<LibraryPage> with WidgetsBindingObserver {
       _all = list;
       _loading = false;
     });
-    if (!widget.onlyFav) _loadHot();
   }
 
   /// 热门来自站点下载点击统计（app-hot.json），按名字归一化后回列表里找封面
@@ -161,8 +160,6 @@ class _LibraryPageState extends State<LibraryPage> with WidgetsBindingObserver {
                 physics: AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
                 slivers: [
                   SliverToBoxAdapter(child: _header()),
-                  if (!widget.onlyFav && _hot.isNotEmpty)
-                    SliverToBoxAdapter(child: _hotRow()),
                   if (_loading)
                     SliverPadding(
                       padding: EdgeInsets.fromLTRB(18, 11, 18, 130),
