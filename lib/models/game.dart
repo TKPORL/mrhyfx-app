@@ -11,6 +11,8 @@ class Game {
   final String code;
   final List<String> shots;
   final String page;
+  final String source;
+  final int qztRank;
   final String date;
 
   const Game({
@@ -26,6 +28,8 @@ class Game {
     this.code = '',
     this.shots = const [],
     this.page = '',
+    this.source = 'post',
+    this.qztRank = 0,
     this.date = '',
   });
 
@@ -42,6 +46,8 @@ class Game {
         code: (j['code'] ?? '').toString(),
         shots: ((j['shots'] as List?) ?? const []).map((e) => e.toString()).toList(),
         page: (j['page'] ?? '').toString(),
+        source: (j['source'] ?? 'post').toString(),
+        qztRank: (j['qztRank'] is num) ? (j['qztRank'] as num).toInt() : 0,
         date: (j['date'] ?? '').toString(),
       );
 
@@ -59,6 +65,8 @@ class Game {
         code: (d['code'] ?? code).toString(),
         shots: ((d['shots'] as List?) ?? const []).map((e) => e.toString()).toList(),
         page: page,
+        source: source,
+        qztRank: qztRank,
         date: date,
       );
 

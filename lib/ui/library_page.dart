@@ -107,13 +107,39 @@ class _LibraryPageState extends State<LibraryPage> with WidgetsBindingObserver {
 
   List<Game> get _shown {
     var l = _all;
-    if (widget.onlyFav) l = l.where((g) => widget.favs.contains(g.id)).toList();
+    if (widget.onlyFav) {
+      l = l.where((g) => widget.favs.contains(g.id)).toList();
+    } else {
+      // 首页：求助帖最新 10 条照常排在最前，其余不整块堆一起，稍后按间隔穿插
+      l = l.where((g) => g.source != 'qzt' || g.qztRank <= 10).toList();
+    }
     if (_tag.isNotEmpty) l = l.where((g) => g.tags.contains(_tag)).toList();
     if (_kw.isNotEmpty) {
       final k = _kw.toLowerCase();
       l = l.where((g) => g.title.toLowerCase().contains(k)).toList();
     }
+    // 没有任何筛选时，把求助帖剩下的内容每隔 6 条插一条，融合进首页而不是单堆一处
+    if (!widget.onlyFav && _kw.isEmpty && _tag.isEmpty) {
+      final rest = _all.where((g) => g.source == 'qzt' && g.qztRank > 10).toList()
+        ..sort((a, b) => a.qztRank.compareTo(b.qztRank));
+      return _interleave(l, rest, 6);
+    }
     return l;
+  }
+
+  /// 每 every 条主列表元素后插一条额外元素
+  List<Game> _interleave(List<Game> main, List<Game> extra, int every) {
+    if (extra.isEmpty) return main;
+    final out = <Game>[];
+    var j = 0;
+    for (var i = 0; i < main.length; i++) {
+      out.add(main[i]);
+      if ((i + 1) % every == 0 && j < extra.length) out.add(extra[j++]);
+    }
+    while (j < extra.length) {
+      out.add(extra[j++]);
+    }
+    return out;
   }
 
   /// 从全部游戏里统计真实类型，按出现次数排序（不写死）
