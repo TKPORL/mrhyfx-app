@@ -10,6 +10,7 @@ import '../services/store.dart';
 import '../services/theme_ctrl.dart';
 import 'about_page.dart';
 import 'detail_page.dart';
+import 'favorites_page.dart';
 import 'theme.dart';
 import 'tip.dart';
 
@@ -92,6 +93,13 @@ class _MePageState extends State<MePage> {
             _group([
               _row(Icons.notifications_none, Color(0xFFFF9F0A), '公告',
                   value: _annCount > 0 ? '$_annCount 条' : '暂无', onTap: _showAnn),
+              _row(Icons.favorite_rounded, Color(0xFFFF375F), '我的收藏',
+                  value: _favCount > 0 ? '$_favCount 款' : '暂无',
+                  onTap: () async {
+                    await Navigator.of(context)
+                        .push(MaterialPageRoute(builder: (_) => const FavoritesPage()));
+                    _boot();
+                  }),
               _row(Icons.history, Color(0xFF5E5CE6), '最近浏览',
                   value: _recentCount > 0 ? '$_recentCount 款' : '暂无', onTap: _showRecent),
             ]),

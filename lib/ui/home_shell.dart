@@ -33,7 +33,6 @@ class _HomeShellState extends State<HomeShell> {
       LibraryPage(favs: _favs, onFavChanged: reloadFavs),
       HotPage(),
       QztPage(),
-      LibraryPage(favs: _favs, onFavChanged: reloadFavs, onlyFav: true, onGoLibrary: () => setState(() => _i = 0)),
       MePage(),
     ];
     return Scaffold(
@@ -53,15 +52,14 @@ class _PillNav extends StatelessWidget {
   static final _items = [
     (Icons.grid_view_rounded, '游戏库'),
     (Icons.local_fire_department_rounded, '热门'),
-    (Icons.forum_outlined, '求助'),
-    (Icons.favorite_rounded, '收藏'),
+    (Icons.forum_outlined, '求游戏'),
     (Icons.person_rounded, '我的'),
   ];
 
   @override
   Widget build(BuildContext context) {
     final w = MediaQuery.of(context).size.width;
-    final itemW = 66.0;
+    final itemW = 74.0;
     return SafeArea(
       top: false,
       child: Padding(

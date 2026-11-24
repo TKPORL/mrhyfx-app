@@ -53,11 +53,11 @@ class _QztPageState extends State<QztPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('求助帖',
+                      Text('求游戏',
                           style: TextStyle(
                               fontSize: 24, fontWeight: FontWeight.w700, letterSpacing: -0.5)),
                       SizedBox(height: 5),
-                      Text('大家求过的游戏，共 ${_list.length} 款 · 最新的排最前',
+                      Text('评论区里大家想要、后来补上的游戏，共 ${_list.length} 款 · 最新在前',
                           style: TextStyle(fontSize: 12.5, color: T.tx3)),
                     ],
                   ),
